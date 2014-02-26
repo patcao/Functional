@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="next" href="PQueue.HeapImpl.html">
+<link rel="Up" href="PQueue.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Animation" rel="Chapter" href="Animation.html">
+<link title="CubePuzzle" rel="Chapter" href="CubePuzzle.html">
+<link title="Huffman" rel="Chapter" href="Huffman.html">
+<link title="PQueue" rel="Chapter" href="PQueue.html">
+<link title="Solver" rel="Chapter" href="Solver.html">
+<link title="TilePuzzle" rel="Chapter" href="TilePuzzle.html">
+<link title="Util" rel="Chapter" href="Util.html"><title>PQueue.ListImpl</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="PQueue.html" title="PQueue">Up</a>
+&nbsp;<a class="post" href="PQueue.HeapImpl.html" title="PQueue.HeapImpl">Next</a>
+</div>
+<h1>Module <a href="type_PQueue.ListImpl.html">PQueue.ListImpl</a></h1>
+
+<pre><span class="keyword">module</span> ListImpl: <code class="type"><a href="PQueue.PQ.html">PQ</a></code><code class="type"> </code></pre><div class="info module top">
+A priority queue implementation based on sorted lists<br>
+</div>
+<hr width="100%">
+
+<pre><span id="TYPEt"><span class="keyword">type</span> <code class="type">'a</code> t</span> </pre>
+<div class="info ">
+a priority queue containing 'a<br>
+</div>
+
+
+<pre><span id="VALempty"><span class="keyword">val</span> empty</span> : <code class="type">'a <a href="Util.html#TYPEcomparator">Util.comparator</a> -> 'a <a href="PQueue.PQ.html#TYPEt">t</a></code></pre><div class="info ">
+constructs an empty priority queue, ordered by the given comparator<br>
+</div>
+
+<pre><span id="VALinsert"><span class="keyword">val</span> insert</span> : <code class="type">'a -> 'a <a href="PQueue.PQ.html#TYPEt">t</a> -> 'a <a href="PQueue.PQ.html#TYPEt">t</a></code></pre><div class="info ">
+<code class="code">insert x q</code> yields a queue containing <code class="code">x</code> and the elements of <code class="code">q</code><br>
+</div>
+
+<pre><span id="VALremove"><span class="keyword">val</span> remove</span> : <code class="type">'a <a href="PQueue.PQ.html#TYPEt">t</a> -> ('a * 'a <a href="PQueue.PQ.html#TYPEt">t</a>) option</code></pre><div class="info ">
+<code class="code">remove q</code> returns the maximum element of <code class="code">q</code>
+      (according to <code class="code">comparator q</code>) and another queue <code class="code">q'</code> containing
+      the remaining elements
+<p>
+
+      It returns None if the queue is empty.<br>
+</div>
+
+<pre><span id="VALmax"><span class="keyword">val</span> max</span> : <code class="type">'a <a href="PQueue.PQ.html#TYPEt">t</a> -> 'a option</code></pre><div class="info ">
+<code class="code">max q</code> returns the maximum element of <code class="code">q</code> (according to <code class="code">comparator q</code>)
+      returns None if the queue is empty.<br>
+</div>
+
+<pre><span id="VALsize"><span class="keyword">val</span> size</span> : <code class="type">'a <a href="PQueue.PQ.html#TYPEt">t</a> -> int</code></pre><div class="info ">
+<code class="code">size q</code> returns the number of elements of <code class="code">q</code><br>
+</div>
+
+<pre><span id="VALis_empty"><span class="keyword">val</span> is_empty</span> : <code class="type">'a <a href="PQueue.PQ.html#TYPEt">t</a> -> bool</code></pre><div class="info ">
+<code class="code">is_empty q</code> returns true if <code class="code">q</code> is empty<br>
+</div>
+
+<pre><span id="VALcomparator"><span class="keyword">val</span> comparator</span> : <code class="type">'a <a href="PQueue.PQ.html#TYPEt">t</a> -> 'a <a href="Util.html#TYPEcomparator">Util.comparator</a></code></pre><div class="info ">
+<code class="code">comparator q</code> returns the comparator that <code class="code">q</code> is ordered by<br>
+</div>
+</body></html>

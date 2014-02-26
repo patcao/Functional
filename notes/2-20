@@ -1,0 +1,67 @@
+type expr = Var of var | Int of int | Let of var*expr*expr | Fun of var*expr | App of expr*expr
+
+e {v/x} {value/var}
+
+(*Performs substitution*)
+let subst e v x = 
+	match e with
+	| Int n -> Int n
+	| Var y -> if x = y then v else Var y         
+	| Fun y e -> 
+		Fun (y, subst e v x)  when y <> x
+		Fun y e when x = y
+
+	(fun y -> e){3 | x}
+
+
+MODULES
+
+module type NUMBER = sig
+	type num
+	val zero : num
+	val plus : num -> num -> num	
+	val format : num -> unit
+end
+
+
+module Number  : NUMBER = struct
+type num = int
+
+let zero = 0
+let plus = (+)
+let format n = 
+	print_int n
+
+end
+
+Number.plus
+
+
+
+module type Group = sig 
+	type num
+	val (+) : num -> num -> num
+	val zero : num
+end
+
+module type Ring = sig 
+	include Group
+	val (\*) : num -> num -> num
+end
+
+module Ints: Ring
+
+module Floats : Ring
+
+Ints = struct 
+	type num = int
+	let (+) = ...
+	let (\*) = ...
+	let zero = 0
+end
+
+
+
+
+
+

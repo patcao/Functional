@@ -1,0 +1,101 @@
+3 + 5 + 7, which gets executed first
+
+Side Effects 
+print_string : string -> unit
+
+print_string "hello"
+hello - : unit = ()
+
+
+Printf
+%i : int
+%f : float
+%s : string
+%a : function val 'Uses function to format val'
+
+Printf.printf "... %i %s" 1 "hello"
+
+
+expressions = 1 | 2 | 3
+			| let x = e1, in e2
+			| match e1 with ...
+			| e1 ; e2
+1) evaluate e1 (care about side effects of e1)
+2)throw result of e1 away
+3) eval e2
+
+let (+)  x y = Printf.printf "%i + %i = %i" x y (x+y)
+(+) int -> int -> unit
+
+
+Exceptions
+Dont user Exceptions if avoidable
+
+failtwith : string -> 'a
+
+let hd l = 
+	match l with
+	| [] -> failwith "empty list"
+	| h :: _ -> h
+
+type 'a option = None | Some of 'a
+hd : 'a list -> 'a option
+let hd l = match l with
+	| [] -> None
+	| h :: _ -> Some h
+
+
+let f x y = 0
+let f = fun x y -> 0	
+let f = fun x -> (fun y -> 0)
+
+(+) : int -> int -> int
+let plus1 x = x + 1
+(*Partial application*)
+let plus1 x = (+) 1
+
+
+Curried you can partially apply
+uncurried you cant partially apply
+
+let x = e in e'           
+
+
+match e with
+| x -> e'
+
+let (x,y) = e in e'
+
+match e with
+| (x,y) -> e'
+
+curry
+(('a * 'b) -> 'c) -> ('a -> 'b -> 'c)
+
+let curry f = 
+	(fun a b -> f(a,b))
+
+a -> (b*c) -> (a -> b) *(a -> c)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,51 @@
+type tree = Empty | Node of int*tree*tree
+
+match t with 
+| Empty -> 
+| Node (v,l,r) ->
+
+Node :: int*tree*tree -> tree
+
+
+type 'a zlist = Nil | Cons of 'a * 'a list
+
+can't write -- type 'a zlist = [] | (::) of 'a * 'a list
+
+let rec length (l : zlist) = 
+	match l with
+	| Nil -> 0
+	| Cons ( _ , tl) -> 1 + length tl
+
+let rec map f (l : zlist) = 
+	match l with
+	| Nil -> Nil
+	| Cons(_ , tl) -> Cons (f x,  map f tl)
+
+let rec fold vnil vcons l = 
+match l with 
+| Nil -> vnil
+| Cons (x, tl) -> vcons x (f vnil vcons tl)-
+
+let length = fold 0 (fun x a -> 1 + a)
+
+let map f = fold Nil (fun x a -> Cons (f x, a))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

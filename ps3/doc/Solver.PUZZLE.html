@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="next" href="Solver.S.html">
+<link rel="Up" href="Solver.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Animation" rel="Chapter" href="Animation.html">
+<link title="CubePuzzle" rel="Chapter" href="CubePuzzle.html">
+<link title="Huffman" rel="Chapter" href="Huffman.html">
+<link title="PQueue" rel="Chapter" href="PQueue.html">
+<link title="Solver" rel="Chapter" href="Solver.html">
+<link title="TilePuzzle" rel="Chapter" href="TilePuzzle.html">
+<link title="Util" rel="Chapter" href="Util.html"><title>Solver.PUZZLE</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="Solver.html" title="Solver">Up</a>
+&nbsp;<a class="post" href="Solver.S.html" title="Solver.S">Next</a>
+</div>
+<h1>Module type <a href="type_Solver.PUZZLE.html">Solver.PUZZLE</a></h1>
+
+<pre><span class="keyword">module type</span> PUZZLE = <code class="code"><span class="keyword">sig</span></code> <a href="Solver.PUZZLE.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><hr width="100%">
+
+<pre><span id="TYPEstate"><span class="keyword">type</span> <code class="type"></code>state</span> </pre>
+
+
+<pre><span id="TYPEmove"><span class="keyword">type</span> <code class="type"></code>move</span> </pre>
+
+
+<pre><span id="VALapply"><span class="keyword">val</span> apply</span> : <code class="type"><a href="Solver.PUZZLE.html#TYPEstate">state</a> -> <a href="Solver.PUZZLE.html#TYPEmove">move</a> -> <a href="Solver.PUZZLE.html#TYPEstate">state</a></code></pre><div class="info ">
+<code class="code">apply s m</code> the state created by executing the move <code class="code">m</code> in state <code class="code">s</code><br>
+</div>
+
+<pre><span id="VALmoves"><span class="keyword">val</span> moves</span> : <code class="type"><a href="Solver.PUZZLE.html#TYPEstate">state</a> -> <a href="Solver.PUZZLE.html#TYPEmove">move</a> list</code></pre><div class="info ">
+Gives the list of all possible moves from a given state<br>
+</div>
+
+<pre><span id="VALis_goal"><span class="keyword">val</span> is_goal</span> : <code class="type"><a href="Solver.PUZZLE.html#TYPEstate">state</a> -> bool</code></pre><div class="info ">
+returns true if the given state is a goal state<br>
+</div>
+
+<pre><span id="VALequal"><span class="keyword">val</span> equal</span> : <code class="type"><a href="Solver.PUZZLE.html#TYPEstate">state</a> -> <a href="Solver.PUZZLE.html#TYPEstate">state</a> -> bool</code></pre><div class="info ">
+returns true if two states are equal<br>
+</div>
+
+<pre><span id="VALgoodness"><span class="keyword">val</span> goodness</span> : <code class="type"><a href="Solver.PUZZLE.html#TYPEstate">state</a> <a href="Util.html#TYPEcomparator">Util.comparator</a></code></pre><div class="info ">
+Compares two states based on how close to the goal they are.  <code class="code">s1</code>
+      is better than <code class="code">s2</code> if <code class="code">goodness s1 s2 = <span class="constructor">Gt</span></code>.<br>
+</div>
+</body></html>

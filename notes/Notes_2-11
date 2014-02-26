@@ -1,0 +1,23 @@
+Substitution
+
+let rec f = fun g -> fun n ->
+	if n = 1 then g 0
+else g 0 + f (fun x -> n) (n-1)
+in f (fun x -> 10) 3
+
+
+
+Note: F = fun g -> ....
+
+(fun g -> f f -> F) (fun x -> 10)
+
+type expr = Let of var*expr*expr 
+|Fun of var*expr
+| App of expr*expr
+| Sum of expr*expr
+| Int of int
+| Var of Var
+
+let rec subst (e : expr) (v:expr) e{v/x}
+(x : var) = match e with
+| Let (y,e,z) = (let y = x in y) {25/x}

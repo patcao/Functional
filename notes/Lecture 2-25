@@ -1,0 +1,49 @@
+
+module type EQUAL = sig 
+	type t 
+	val equal : t -> t -> bool
+end
+
+module type SET = 	
+sig
+	type elt
+	type set
+	val empty : set
+	val mem : elt -> set -> bool
+	val add : elt -> set -> set	
+	val size : set -> int	
+end
+
+module type SETFUNCTOR	 = 
+	functor (Equal: EQUAL) -> SET 
+	with type elt = Equal.t
+
+module Make : SETFUNCTOR = 
+	functor (Equal : EQUAL) -> 
+		struct 
+			type elt = Equal.t
+			type set = elt List
+			let empty = []
+			let mem x s = List.exists (fun y -> Equal.equal x y) s
+			let add x s = if mem x s then s else x :: s
+			let size s = List.length s
+		end
+module StringCase = struct
+	type t = string 
+	let equal s1 s2 = s1 = s2
+	let compare s1 s2 = 
+		Pervasives.compare s1 s2
+end
+
+module StringNoCase = struct
+	type t = string 
+	let equal s2 s2 = String.lowercase s1 = String.lowercase s2
+	let compare s1 s2 = 
+			Pervasives.compare (String.lowercase s1) (String.lowercase s2)
+end
+
+module StringSetCase = Make (StringCase)
+module StringSetNoCase = Make (StringNoCase)
+
+
+

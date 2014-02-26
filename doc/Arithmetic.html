@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Lists.html">
+<link rel="next" href="Trees.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Lists" rel="Chapter" href="Lists.html">
+<link title="Arithmetic" rel="Chapter" href="Arithmetic.html">
+<link title="Trees" rel="Chapter" href="Trees.html">
+<link title="Binary" rel="Chapter" href="Binary.html">
+<link title="Warmup" rel="Chapter" href="Warmup.html"><title>Arithmetic</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Lists.html" title="Lists">Previous</a>
+&nbsp;<a class="up" href="index.html" title="Index">Up</a>
+&nbsp;<a class="post" href="Trees.html" title="Trees">Next</a>
+</div>
+<h1>Module <a href="type_Arithmetic.html">Arithmetic</a></h1>
+
+<pre><span class="keyword">module</span> Arithmetic: <code class="code"><span class="keyword">sig</span></code> <a href="Arithmetic.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+This module defines an expression type for manipulating simple arithmetic
+    expressions. The expressions are given by the type <code class="code">exp</code> and the main
+    operation defined is <code class="code">fold</code>, which generalizes <code class="code"><span class="constructor">List</span>.fold_right</code> to the
+    <code class="code">exp</code> type.<br>
+</div>
+<hr width="100%">
+
+<pre><code><span id="TYPEexp"><span class="keyword">type</span> <code class="type"></code>exp</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTexp.Val"><span class="constructor">Val</span></span> <span class="keyword">of</span> <code class="type">int</code></code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" >The <code class="code"><span class="constructor">Val</span></code> constructor represents primitive integers.</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTexp.Plus"><span class="constructor">Plus</span></span> <span class="keyword">of</span> <code class="type"><a href="Arithmetic.html#TYPEexp">exp</a> * <a href="Arithmetic.html#TYPEexp">exp</a></code></code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" >The <code class="code"><span class="constructor">Plus</span></code> constructor represents expressions of the form <code class="code">x + y</code>.</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTexp.Times"><span class="constructor">Times</span></span> <span class="keyword">of</span> <code class="type"><a href="Arithmetic.html#TYPEexp">exp</a> * <a href="Arithmetic.html#TYPEexp">exp</a></code></code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" >The <code class="code"><span class="constructor">Times</span></code> constructor represents expressions of the form <code class="code">x * y</code>.</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr></table>
+
+<div class="info ">
+The <code class="code">exp</code> type is the type abstraction for arithmetic expressions.<br>
+</div>
+
+
+<pre><span id="VALexp_fold"><span class="keyword">val</span> exp_fold</span> : <code class="type">(int -> 'a) -> ('a -> 'a -> 'a) -> ('a -> 'a -> 'a) -> <a href="Arithmetic.html#TYPEexp">exp</a> -> 'a</code></pre><div class="info ">
+The expression <code class="code">fold val_op plus_op times_op exp</code> recursively
+    processes each sub-expression of <code class="code">exp</code> via the following scheme:
+    <ul>
+<li>It applies the operation <code class="code">val_op</code> to each <code class="code"><span class="constructor">Val</span></code> sub-expression.</li>
+<li>It applies the operation <code class="code">plus_op</code> to each <code class="code"><span class="constructor">Plus</span></code> sub-expression.</li>
+<li>It applies the operation <code class="code">times_op</code> to each <code class="code"><span class="constructor">Times</span></code> sub-expression</li>
+</ul>
+<br>
+</div>
+
+<pre><span id="VALeval"><span class="keyword">val</span> eval</span> : <code class="type"><a href="Arithmetic.html#TYPEexp">exp</a> -> int</code></pre><div class="info ">
+The <code class="code">eval</code> function takes an input expression and evaluates it according
+    the rules of ordinary integer arithmetic.<br>
+</div>
+
+<pre><span id="VALto_string"><span class="keyword">val</span> to_string</span> : <code class="type"><a href="Arithmetic.html#TYPEexp">exp</a> -> string</code></pre><div class="info ">
+<code class="code">to_string exp</code> return a fully parenthesized string representation of
+    <code class="code">exp</code> with no spaces between operators and their operands.<br>
+</div>
+</body></html>

@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="CubePuzzle.html">
+<link rel="next" href="PQueue.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Animation" rel="Chapter" href="Animation.html">
+<link title="CubePuzzle" rel="Chapter" href="CubePuzzle.html">
+<link title="Huffman" rel="Chapter" href="Huffman.html">
+<link title="PQueue" rel="Chapter" href="PQueue.html">
+<link title="Solver" rel="Chapter" href="Solver.html">
+<link title="TilePuzzle" rel="Chapter" href="TilePuzzle.html">
+<link title="Util" rel="Chapter" href="Util.html"><title>Huffman</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="CubePuzzle.html" title="CubePuzzle">Previous</a>
+&nbsp;<a class="up" href="index.html" title="Index">Up</a>
+&nbsp;<a class="post" href="PQueue.html" title="PQueue">Next</a>
+</div>
+<h1>Module <a href="type_Huffman.html">Huffman</a></h1>
+
+<pre><span class="keyword">module</span> Huffman: <code class="code"><span class="keyword">sig</span></code> <a href="Huffman.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Module for performing Huffman coding.
+<p>
+
+    This interface is agnostic about the type of characters that are used.  The
+    most typical use is to build <code class="code">char encoding</code>s from <code class="code">char list</code>s, but other
+    types are possible.<br>
+</div>
+<hr width="100%">
+
+<pre><code><span id="TYPEbit"><span class="keyword">type</span> <code class="type"></code>bit</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTbit.Zero"><span class="constructor">Zero</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTbit.One"><span class="constructor">One</span></span></code></td>
+
+</tr></table>
+
+
+
+<pre><code><span id="TYPEhufftree"><span class="keyword">type</span> <code class="type">'a</code> hufftree</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELThufftree.Leaf"><span class="constructor">Leaf</span></span> <span class="keyword">of</span> <code class="type">'a</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELThufftree.Node"><span class="constructor">Node</span></span> <span class="keyword">of</span> <code class="type">'a <a href="Huffman.html#TYPEhufftree">hufftree</a> * 'a <a href="Huffman.html#TYPEhufftree">hufftree</a></code></code></td>
+
+</tr></table>
+
+
+
+<pre><code><span id="TYPEencoding"><span class="keyword">type</span> <code class="type">'a</code> encoding</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTencoding.Empty"><span class="constructor">Empty</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTencoding.Tree"><span class="constructor">Tree</span></span> <span class="keyword">of</span> <code class="type">'a <a href="Huffman.html#TYPEhufftree">hufftree</a></code></code></td>
+
+</tr></table>
+
+
+
+<pre><span id="VALbuild_tree"><span class="keyword">val</span> build_tree</span> : <code class="type">'a list -> 'a <a href="Huffman.html#TYPEencoding">encoding</a></code></pre><div class="info ">
+given a list of characters, build an optimal Huffman tree for encoding that
+    list.  If the input list is empty, then <code class="code"><span class="constructor">Empty</span></code> should be returned; if the
+    input list contains only repetitions of a single character <code class="code">c</code>, then
+    <code class="code"><span class="constructor">Singleton</span> c</code> should be returned.<br>
+</div>
+
+<pre><span id="VALencode"><span class="keyword">val</span> encode</span> : <code class="type">'a <a href="Huffman.html#TYPEhufftree">hufftree</a> -> 'a list -> <a href="Huffman.html#TYPEbit">bit</a> list</code></pre><div class="info ">
+<code class="code">encode tree chars</code> produces the bit list representing <code class="code">chars</code> using the
+    Huffman tree <code class="code">tree</code>.
+<p>
+
+    The characters in <code class="code">chars</code> must all be represented in <code class="code">tree</code>;
+    if passed a malformed input, <code class="code">encode</code> should raise an exception.<br>
+</div>
+
+<pre><span id="VALdecode"><span class="keyword">val</span> decode</span> : <code class="type">'a <a href="Huffman.html#TYPEhufftree">hufftree</a> -> <a href="Huffman.html#TYPEbit">bit</a> list -> 'a list</code></pre><div class="info ">
+<code class="code">decode tree bits</code> decodes <code class="code">bits</code> using the encoding scheme specified for
+    the <code class="code">encode</code> function.
+<p>
+
+    It should raise an exception if <code class="code">bits</code> is not valid according to <code class="code">tree</code>.<br>
+</div>
+</body></html>

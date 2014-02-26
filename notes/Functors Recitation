@@ -1,0 +1,88 @@
+		Analogy
+value     <==> modules
+types     <==> module type
+functions <==> functor
+"fun"     <==> functor as a module
+->        <==> functor
+
+module type SET = sig 
+	
+
+end	
+
+
+module Make = functor (Equal : EQUAL) -> struct 
+end
+
+module Make (Equal : EQUAL) = struct 
+end
+
+
+
+module type SET = sig 
+	mem : 
+	empty : 
+	insert :
+	ntersect : 
+
+end
+
+
+
+(*Good practice for using methods inside of modules*)
+module LongNameS = Set.Make (String)
+module S = LongNameS
+
+
+(*How to use include
+Used for extending modules
+*)
+
+module type EQUAL = sig 
+	equal:
+end
+
+module type COMPARABLE = sig 
+	include EQUAL (*Takes entire definition of EQUAL and bring it here*)
+	val cmp : 
+end 
+
+
+(*Debugging*)
+module type PUZZLE = sig 
+	type move 
+	type state 
+	moves 
+end 
+
+module Make (P:PUZZLE) = struct 
+	let solve state = 
+end 
+
+module type PRINTPUZZLE = sig 
+	include PUZZLE 
+	val print move -> String 
+end 
+
+PrintMake (P : PRINTPUZZLE) = struct 
+	let solve state = 
+end 
+
+module MakePrinter (P:PUZZLE) = struct 
+	: PRINTPUZZLE = 
+		let print move = ""
+		include P
+	end 	
+end 
+
+module Make ( P : PUZZLE ) = struct
+	include PrintMake ( MakePrinter (P) )
+
+
+Module s = Solver.Make(TilePuzzle)
+	s.solve state;;
+
+Module ps = Solver.PrintMake(TilePuzzle)
+	ps.sovle state;;
+
+

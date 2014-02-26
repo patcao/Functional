@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="TilePuzzle.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Index of module types" rel=Appendix href="index_module_types.html">
+<link title="Animation" rel="Chapter" href="Animation.html">
+<link title="CubePuzzle" rel="Chapter" href="CubePuzzle.html">
+<link title="Huffman" rel="Chapter" href="Huffman.html">
+<link title="PQueue" rel="Chapter" href="PQueue.html">
+<link title="Solver" rel="Chapter" href="Solver.html">
+<link title="TilePuzzle" rel="Chapter" href="TilePuzzle.html">
+<link title="Util" rel="Chapter" href="Util.html"><title>Util</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="TilePuzzle.html" title="TilePuzzle">Previous</a>
+&nbsp;<a class="up" href="index.html" title="Index">Up</a>
+&nbsp;</div>
+<h1>Module <a href="type_Util.html">Util</a></h1>
+
+<pre><span class="keyword">module</span> Util: <code class="code"><span class="keyword">sig</span></code> <a href="Util.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+Utility functions for problem set 3.<br>
+</div>
+<hr width="100%">
+<br>
+timing *******************************************************************<br>
+
+<pre><span id="VALtime"><span class="keyword">val</span> time</span> : <code class="type">('a -> 'b) -> 'a -> float</code></pre><div class="info ">
+<code class="code">time f x</code> runs <code class="code">f x</code> and returns the time it takes to run (in seconds).<br>
+</div>
+<br>
+randomization ************************************************************<br>
+
+<pre><span id="VALrand_list"><span class="keyword">val</span> rand_list</span> : <code class="type">int -> int -> int list</code></pre><div class="info ">
+<code class="code">rand_list n l</code> returns a random list of <code class="code">l</code> integers between <code class="code">0</code> and <code class="code">n</code><br>
+</div>
+
+<pre><span id="VALshuffle"><span class="keyword">val</span> shuffle</span> : <code class="type">'a list -> 'a list</code></pre><div class="info ">
+randomly shuffle a list.<br>
+</div>
+
+<pre><span id="VALchoice"><span class="keyword">val</span> choice</span> : <code class="type">'a list -> 'a</code></pre><div class="info ">
+randomly select an element from a list<br>
+</div>
+<br>
+comparisons **************************************************************<br>
+
+<pre><code><span id="TYPEcomparison_result"><span class="keyword">type</span> <code class="type"></code>comparison_result</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcomparison_result.Lt"><span class="constructor">Lt</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcomparison_result.Eq"><span class="constructor">Eq</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTcomparison_result.Gt"><span class="constructor">Gt</span></span></code></td>
+
+</tr></table>
+
+<div class="info ">
+Less than / Equal / Greater than<br>
+</div>
+
+
+<pre><span id="TYPEcomparator"><span class="keyword">type</span> <code class="type">'a</code> comparator</span> = <code class="type">'a -> 'a -> <a href="Util.html#TYPEcomparison_result">comparison_result</a></code> </pre>
+<div class="info ">
+An 'a comparator represents a total order on 'as.<br>
+</div>
+
+<br>
+printing *****************************************************************<br>
+
+<pre><span id="VALstring_of_list"><span class="keyword">val</span> string_of_list</span> : <code class="type">('a -> string) -> 'a list -> string</code></pre><div class="info ">
+<code class="code">string_of_list f l</code> returns a pretty joining of <code class="code">f</code> invoked on every
+ * element of <code class="code">l</code>.<br>
+</div>
+</body></html>

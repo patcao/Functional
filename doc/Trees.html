@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Arithmetic.html">
+<link rel="next" href="Binary.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Lists" rel="Chapter" href="Lists.html">
+<link title="Arithmetic" rel="Chapter" href="Arithmetic.html">
+<link title="Trees" rel="Chapter" href="Trees.html">
+<link title="Binary" rel="Chapter" href="Binary.html">
+<link title="Warmup" rel="Chapter" href="Warmup.html"><title>Trees</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Arithmetic.html" title="Arithmetic">Previous</a>
+&nbsp;<a class="up" href="index.html" title="Index">Up</a>
+&nbsp;<a class="post" href="Binary.html" title="Binary">Next</a>
+</div>
+<h1>Module <a href="type_Trees.html">Trees</a></h1>
+
+<pre><span class="keyword">module</span> Trees: <code class="code"><span class="keyword">sig</span></code> <a href="Trees.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+This module implements various utility functions on binary
+    trees. The fundamental operation is <code class="code">tree_fold</code>, which is used in
+    an analogous manner to <code class="code"><span class="constructor">List</span>.fold_right</code>. You may find <a href="
+    http://en.wikipedia.org/wiki/Tree_traversal"> this information</a>
+    about tree traversals helpful in implementing your solutions.<br>
+</div>
+<hr width="100%">
+
+<pre><code><span id="TYPEbintree"><span class="keyword">type</span> <code class="type">'a</code> bintree</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTbintree.Leaf"><span class="constructor">Leaf</span></span></code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" >The <code class="code"><span class="constructor">Leaf</span></code> constructor is used to signify the end of a particular
+    branch of the tree.</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTbintree.Node"><span class="constructor">Node</span></span> <span class="keyword">of</span> <code class="type">'a <a href="Trees.html#TYPEbintree">bintree</a> * 'a * 'a <a href="Trees.html#TYPEbintree">bintree</a></code></code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" >The <code class="code"><span class="constructor">Node</span></code> constructor represents a tree node containing a value
+    of type <code class="code"><span class="keywordsign">'</span>a</code> and two subintrees.</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr></table>
+
+<div class="info ">
+The type <code class="code"><span class="keywordsign">'</span>a bintree</code> represents a binary tree with data of type
+    <code class="code"><span class="keywordsign">'</span>a</code> stored in the nodes.<br>
+</div>
+
+
+<pre><span id="VALtree_count"><span class="keyword">val</span> tree_count</span> : <code class="type">'a <a href="Trees.html#TYPEbintree">bintree</a> -> int</code></pre><div class="info ">
+<code class="code">tree_count t</code> counts the number of <code class="code"><span class="constructor">Node</span></code>s in the tree <code class="code">t</code>.<br>
+</div>
+
+<pre><span id="VALtree_sum"><span class="keyword">val</span> tree_sum</span> : <code class="type">int <a href="Trees.html#TYPEbintree">bintree</a> -> int</code></pre><div class="info ">
+<code class="code">tree_sum t</code> computes the sum of the values in the <code class="code"><span class="constructor">Nodes</span></code> of
+    <code class="code">t</code>.<br>
+</div>
+
+<pre><span id="VALtree_mem"><span class="keyword">val</span> tree_mem</span> : <code class="type">'a -> 'a <a href="Trees.html#TYPEbintree">bintree</a> -> bool</code></pre><div class="info ">
+<code class="code">tree_mem x t</code> returns true if and only if <code class="code">x</code> is an element in
+    <code class="code">t</code>.<br>
+</div>
+
+<pre><span id="VALtree_preorder"><span class="keyword">val</span> tree_preorder</span> : <code class="type">'a <a href="Trees.html#TYPEbintree">bintree</a> -> 'a list</code></pre><div class="info ">
+<code class="code">tree_preorder t</code> outputs a <code class="code">list</code> containing the <a href="
+    http://en.wikipedia.org/wiki/Tree_traversal#Pre-order">pre-order</a>
+    traversal of <code class="code">t</code>. More precisely <code class="code"><span class="constructor">List</span>.nth (tree_preorder t) k</code> is
+    the value contained <code class="code">k</code><sup class="superscript">th</sup> visited <code class="code"><span class="constructor">Node</span></code> in the pre-order
+    traversal of <code class="code">t</code>.<br>
+</div>
+
+<pre><span id="VALtree_inorder"><span class="keyword">val</span> tree_inorder</span> : <code class="type">'a <a href="Trees.html#TYPEbintree">bintree</a> -> 'a list</code></pre><div class="info ">
+The <code class="code">tree_inorder</code> function has an analogous specification to
+    <code class="code">tree_preorder</code>, but outputs the <a href="
+    http://en.wikipedia.org/wiki/Tree_traversal#In-order_.28symmetric.29">in-order</a>
+    traversal of <code class="code">t</code>.<br>
+</div>
+
+<pre><span id="VALtree_postorder"><span class="keyword">val</span> tree_postorder</span> : <code class="type">'a <a href="Trees.html#TYPEbintree">bintree</a> -> 'a list</code></pre><div class="info ">
+<code class="code">tree_postorder</code> is similar to <code class="code">tree_preorder</code> as well, but
+    outputs a <a href="
+    http://en.wikipedia.org/wiki/Tree_traversal#Post-order">
+    post-order</a> traversal.<br>
+</div>
+
+<pre><span id="VALtree_fold"><span class="keyword">val</span> tree_fold</span> : <code class="type">'a -> ('b -> 'a -> 'a -> 'a) -> 'b <a href="Trees.html#TYPEbintree">bintree</a> -> 'a</code></pre><div class="info ">
+The <code class="code">tree_fold</code> function generalizes fold operator to the <code class="code"><span class="keywordsign">'</span>a
+    bintree</code> type. The expression <code class="code">tree_fold l n t</code> processes the
+    sub-trees of <code class="code">t</code> via the following inductive scheme: <ul>
+<li>Each
+    <code class="code"><span class="constructor">Leaf</span></code> constructor returns the value <code class="code">l</code></li>
+<li>Each <code class="code"><span class="constructor">Node</span></code>
+    constructor applies the function <code class="code">n</code> to the data within the <code class="code"><span class="constructor">Node</span></code>
+    and its incident sub-trees.</li>
+</ul>
+<br>
+</div>
+
+<pre><span id="VALtree_count_fold"><span class="keyword">val</span> tree_count_fold</span> : <code class="type">'a <a href="Trees.html#TYPEbintree">bintree</a> -> int</code></pre><div class="info ">
+<code class="code">tree_count_fold</code> is identical to <code class="code">tree_count</code>, but it is implemented
+    with <code class="code">tree_fold</code><br>
+</div>
+
+<pre><span id="VALtree_sum_fold"><span class="keyword">val</span> tree_sum_fold</span> : <code class="type">int <a href="Trees.html#TYPEbintree">bintree</a> -> int</code></pre><div class="info ">
+<code class="code">tree_sum_fold</code> is identical to <code class="code">tree_sum</code>, but it is implemented
+    with <code class="code">tree_fold</code><br>
+</div>
+
+<pre><span id="VALtree_mem_fold"><span class="keyword">val</span> tree_mem_fold</span> : <code class="type">'a -> 'a <a href="Trees.html#TYPEbintree">bintree</a> -> bool</code></pre><div class="info ">
+<code class="code">tree_mem_fold</code> is identical to <code class="code">tree_mem</code>, but it is implemented
+    with <code class="code">tree_fold</code><br>
+</div>
+
+<pre><span id="VALtree_preorder_fold"><span class="keyword">val</span> tree_preorder_fold</span> : <code class="type">'a <a href="Trees.html#TYPEbintree">bintree</a> -> 'a list</code></pre><div class="info ">
+<code class="code">tree_preorder_fold</code> is identical to <code class="code">tree_preorder</code>, but it is implemented
+    with <code class="code">tree_fold</code><br>
+</div>
+
+<pre><span id="VALtree_inorder_fold"><span class="keyword">val</span> tree_inorder_fold</span> : <code class="type">'a <a href="Trees.html#TYPEbintree">bintree</a> -> 'a list</code></pre><div class="info ">
+<code class="code">tree_inorder_fold</code> is identical to <code class="code">tree_inorder</code>, but it is implemented
+    with <code class="code">tree_fold</code><br>
+</div>
+
+<pre><span id="VALtree_postorder_fold"><span class="keyword">val</span> tree_postorder_fold</span> : <code class="type">'a <a href="Trees.html#TYPEbintree">bintree</a> -> 'a list</code></pre><div class="info ">
+<code class="code">tree_postorder_fold</code> is identical to <code class="code">tree_postorder</code>, but it is implemented
+    with <code class="code">tree_fold</code><br>
+</div>
+</body></html>

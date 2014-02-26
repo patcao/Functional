@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Trees.html">
+<link rel="next" href="Warmup.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Lists" rel="Chapter" href="Lists.html">
+<link title="Arithmetic" rel="Chapter" href="Arithmetic.html">
+<link title="Trees" rel="Chapter" href="Trees.html">
+<link title="Binary" rel="Chapter" href="Binary.html">
+<link title="Warmup" rel="Chapter" href="Warmup.html"><title>Binary</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Trees.html" title="Trees">Previous</a>
+&nbsp;<a class="up" href="index.html" title="Index">Up</a>
+&nbsp;<a class="post" href="Warmup.html" title="Warmup">Next</a>
+</div>
+<h1>Module <a href="type_Binary.html">Binary</a></h1>
+
+<pre><span class="keyword">module</span> Binary: <code class="code"><span class="keyword">sig</span></code> <a href="Binary.html">..</a> <code class="code"><span class="keyword">end</span></code></pre><div class="info module top">
+The <code class="code"><span class="constructor">Binary</span></code> module exports a function to add numbers in <a href="
+    http://en.wikipedia.org/wiki/Binary_number"> binary</a>
+    representations. When implementing this module you may find it
+    useful to implement some helper functions.<br>
+</div>
+<hr width="100%">
+
+<pre><code><span id="TYPEbit"><span class="keyword">type</span> <code class="type"></code>bit</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTbit.Zero"><span class="constructor">Zero</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTbit.One"><span class="constructor">One</span></span></code></td>
+
+</tr></table>
+
+<div class="info ">
+The type <code class="code">bit</code> represents a single binary digit<br>
+</div>
+
+
+<pre><span id="TYPEbits"><span class="keyword">type</span> <code class="type"></code>bits</span> = <code class="type"><a href="Binary.html#TYPEbit">bit</a> list</code> </pre>
+<div class="info ">
+The type <code class="code">bits</code> represents a sequence of binary digits. By
+    convention, we will assume that the most significant bit at the
+    head of the list<br>
+</div>
+
+
+<pre><span id="VALbits_to_int"><span class="keyword">val</span> bits_to_int</span> : <code class="type"><a href="Binary.html#TYPEbits">bits</a> -> int</code></pre><div class="info ">
+<code class="code">bits_to_int lst</code> converts <code class="code">bits</code> <code class="code">lst</code> to an <code class="code">int</code>.<br>
+</div>
+
+<pre><span id="VALint_to_bits"><span class="keyword">val</span> int_to_bits</span> : <code class="type">int -> <a href="Binary.html#TYPEbits">bits</a></code></pre><div class="info ">
+<code class="code">int_to_bits n</code> converts an <code class="code">int</code> <code class="code">n</code> to <code class="code">bits</code>.<br>
+</div>
+
+<pre><span id="VALnormalize"><span class="keyword">val</span> normalize</span> : <code class="type"><a href="Binary.html#TYPEbits">bits</a> -> <a href="Binary.html#TYPEbits">bits</a> -> <a href="Binary.html#TYPEbits">bits</a> * <a href="Binary.html#TYPEbits">bits</a></code></pre><div class="info ">
+<code class="code">normalize lst lst'</code> outputs <code class="code">(lst'',lst''')</code> such that the
+    <code class="code">lst''</code> and <code class="code">lst'''</code> have the same length. If the input lists are
+    not the same length, the shorter is padded with <code class="code"><span class="constructor">Zero</span></code>s.<br>
+</div>
+
+<pre><span id="VALdrop_leading_zeros"><span class="keyword">val</span> drop_leading_zeros</span> : <code class="type"><a href="Binary.html#TYPEbits">bits</a> -> <a href="Binary.html#TYPEbits">bits</a></code></pre><div class="info ">
+<code class="code">drop_leading_zeros lst</code> returns <code class="code">lst'</code> for 
+    <code class="code">lst = <span class="constructor">Zero</span>::...::<span class="constructor">Zero</span>::lst'</code>, where <code class="code"><span class="constructor">Zero</span>::...::<span class="constructor">Zero</span></code> represents 
+    all of the leading zeros in <code class="code">lst</code>.<br>
+</div>
+
+<pre><span id="VALbinary_addition"><span class="keyword">val</span> binary_addition</span> : <code class="type"><a href="Binary.html#TYPEbits">bits</a> -> <a href="Binary.html#TYPEbits">bits</a> -> <a href="Binary.html#TYPEbits">bits</a></code></pre><div class="info ">
+The <code class="code">binary_addition m n</code> function is used to add two numbers <code class="code">m</code>
+    and <code class="code">n</code> represented in binary using <code class="code">bits</code>.<br>
+<b>Returns</b> the binary representation of <code class="code">m+n</code> in <code class="code">bits</code>, with all
+    leading zeros removed.<br>
+</div>
+</body></html>

@@ -1,0 +1,431 @@
+\documentclass{pset}
+\usepackage{multicol}
+\usepackage[compact]{titlesec}
+
+
+\newcommand{\TODO}[1][finish]{\textbf{TODO --- #1}}
+
+\setlength\parindent{0em}
+\setlength\parskip{1em}
+\titlespacing*{\section}{0pt}{0pt}{0pt}
+
+\hypersetup{
+  colorlinks=true,
+  urlcolor=cyan
+}
+
+
+\psnum{1}
+\date{Thursday, February 6}
+\versionnumber{1}
+
+\begin{document}
+\maketitle
+
+\section*{Overview}
+
+This assignment will take you through a sequence of small problems,
+culminating in a final program that simulates a rock-paper-scissors
+tournament.
+
+\section*{Objectives}
+
+\begin{itemize}
+\item{} Gain familiarity with basic OCaml features such as lists,
+  tuples, functions, pattern matching, and data types.
+\item{} Practice writing programs in the functional style using
+  immutable data, recursion, and higher-order functions.
+\item{} Introduce the basic features of the OCaml type system.
+\item{} Illustrate the impact of code style on readability,
+  correctness, and maintainability.
+\end{itemize}
+
+\section*{Recommended reading}
+
+The following supplementary materials may be helpful in completing
+this assignment:
+\begin{itemize}
+  \item{} Lectures \href{http://www.cs.cornell.edu/Courses/cs3110/2014sp/lectures/1/lec01.pdf}{1}
+    \href{http://www.cs.cornell.edu/Courses/cs3110/2014sp/lectures/2/lec02.html}{2}
+    \href{http://www.cs.cornell.edu/Courses/cs3110/2014sp/lectures/3/lec03.html}{3}
+\item{} Recitations 
+  \href{http://www.cs.cornell.edu/Courses/cs3110/2014sp/recitations/1/rec01.html}{1}
+  \href{http://www.cs.cornell.edu/Courses/cs3110/2014sp/recitations/2/tuples_records_data.html}{2}
+  \href{http://www.cs.cornell.edu/Courses/cs3110/2014sp/recitations/3/rec03.html}{3}
+\item{} \href{http://www.cs.cornell.edu/Courses/cs3110/2014sp/handouts/style.html}{The CS 3110 style guide}
+\item{} \href{http://ocaml.org/learn/tutorials/}{The OCaml tutorial}
+\item{} \href{https://realworldocaml.org/v1/en/html/index.html}{Real World OCaml, Chapters 1-3}
+\end{itemize}
+
+\section*{What to turn in}
+
+Exercises marked [code] should be placed in \filename{ps1.ml} and will
+be graded automatically. Exercises marked [written] should be placed
+in \filename{written.txt} or \filename{written.pdf} and will be graded
+by hand.
+
+\newpage{}
+\section*{Warm-up}
+
+\exercise{} 
+[written] Identify the types and values of the following expressions.
+If the expressions are not well typed, briefly explain why not.
+
+\begin{note}{Note}
+Although the toplevel will give you the answers to these questions, we
+recommend that you try them on your own before checking them against the
+toplevel.  Figuring out types is a good skill to have for reading OCaml code
+and for passing 3110 exams.
+\end{note}
+
+\begin{multicols}{2}
+\begin{enumerate}[(a)]
+\item{} \code{3 + 5}
+\item{} \code{("zardoz", 3+5)}
+\item{} \code{["zardoz"; 3+5]}
+\columnbreak{}
+\item{} \code{[List.hd] :: []}
+\item{} \code{fun x y -> if x then y else x}
+\item{} \code{fun a (b, c) -> a c (b c)}
+% \item{} \code{3. +. 5.}
+% \item{} \code{3 +. 5}
+% \item{} \code{"zardoz"}
+% \item{} \code{("zardoz", 3+5)}
+% \columnbreak
+% \item{} \code{[1; 2; 3]}
+% \item{} \code{1::2::3::[]}
+% \item{} \code{["zardoz"; 3+5]}
+% \item{} \code{fun x -> 3 + x}
+% \item{} \code{fun x -> [x]}
+\end{enumerate}
+\end{multicols}
+
+\exercise{}
+[written] Give expressions having the following types.
+\begin{multicols}{2}
+\begin{enumerate}[(a)]
+\item{} \code{int -> int -> int}
+\item{} \code{(int -> int) -> int}
+\item{} \code{int -> (int -> int)}
+\columnbreak{}
+\item{} \code{'a -> 'a}
+\item{} \code{'a -> 'b -> 'a}
+\item{} \code{('a * 'b -> 'c) -> ('a -> 'b -> 'c)}
+\end{enumerate}
+\end{multicols}
+
+\newpage{}
+\section*{Code Style}
+
+\exercise{}
+\href{http://en.wikipedia.org/wiki/Rock-paper-scissors}{Rock-paper-scissors}
+is a simple two-player game in which players independently choose one
+of three symbols (rock, paper, or scissors), and reveal their choice
+simultaneously. The winner of each round is selected using the
+following ordering: rock beats scissors, scissors beat paper, and
+paper beats rock. When the two players choose the same symbol, the
+round ends in a draw.
+
+The following function simulates a single round of a
+rock-paper-scissors game, but is written with poor style.
+
+\begin{ocaml}
+(** 
+ * [rps_round a b] accepts two symbols, [a] and [b], and determines the
+ * winner.  "rock" beats "scissors", "scissors" beats "paper", and "paper"
+ * beats "rock"
+ *
+ * @param a b One of the choices "rock", "paper" or "scissors"
+ * @return One of { -1, 0, 1, 4 }. -1 means [a] won, 1 means [b] won, 
+ *   0 indicates a tie.  4 indicates an invalid input.
+ *)
+let rps_round (a : string) (b : string) : int =
+  if a = "rock" then (
+    if b = "rock" then 0
+    else if b = "paper" then 1
+    else if b = "scissors" then -1
+    else 4
+  )
+  else if a = "paper" then (
+    if b = "rock" then -1
+    else if b = "paper" then 0
+    else if b = "scissors" then 1
+    else 4
+  )
+  else if a = "scissors" then (
+    if b = "rock" then 1
+    else if b = "paper" then -1
+    else if b = "scissors" then 0
+    else 4
+  )
+  else 4
+\end{ocaml}
+
+\newpage{}
+\begin{enumerate}[(a)]
+\item{} [code] Modify \code{rps_round} using the following type definitions, 
+      \begin{ocaml}
+      type move   = Rock | Paper | Scissors
+      type result = AWin | BWin  | Draw
+      \end{ocaml}
+      so that \code{a} and \code{b} have type \code{move}, and the
+      function returns a value of type \code{result}.  The resulting
+      function \code{rps_round_enum}.
+
+      [written] Briefly explain (in one or two sentences) why this
+      function is less error-prone than the version using
+      \code{string} and \code{int}.
+
+\item{} [code] Write a function \code{rps_round_nested_match}
+  replacing each \code{if}-\code{then}-\code{else} expression with a
+  \code{match} statement.
+
+  [written] Explain in one or two sentences why \code{rps_round_nested_match} is less error-prone than
+  \code{rps_round_enum}
+
+\item{} [code] Simplify the function further in
+  \code{rps_round_single_match} by replacing the entire body of the
+  function with a single \code{match} statement (hint: match on a
+  tuple).
+
+\item{} [code] Write a function \code{rps_round_with_helper} that uses
+  a helper function
+    \begin{ocaml}
+    beats : move -> move -> bool
+    \end{ocaml}
+  returning
+  \code{true} if its first parameter wins against its second parameter
+  and \code{false} otherwise. Use the catch-all pattern \code{_} in
+  your implementation of \code{beats}.
+
+ [written] Explain one way in which the \code{rps_round_with_helper}
+ implementation is less error-prone than
+ \code{rps_round_single_match}.  Explain one way in which
+ \code{rps_round_with_helper} is \textit{more} error-prone than
+ \code{rps_round_single_match} (Hint: consider the code changes that
+ would be needed to add a fourth move \code{Nuke} that beats all of
+ the other \code{move}s).
+\end{enumerate}
+
+\section*{OCaml programming}
+
+\exercise{}
+\begin{enumerate}[(a)]
+\item{} [code] Write a function \code{all_pairs} that takes an
+  \code{'a list} $\ell$ as input and returns a list containing all
+  pairs of elements of $\ell$.  For example:
+      \begin{ocaml}
+# all_pairs ['a'; 'b'];;
+- : (char * char) list = [('a', 'a'); ('a', 'b');
+                          ('b', 'a'); ('b', 'b')]
+
+# all_pairs [0; 1; 2];;
+- : (int * int) list = [(0, 0); (0, 1); (0, 2); (1, 0);
+                        (1, 1); (1, 2); (2, 0); (2, 1); (2, 2)]
+      \end{ocaml}
+
+   The order of the output list does not matter.
+
+\item{} [code] Use \code{all_pairs} to implement a function
+  \code{test_rps_eq} that takes two of your implementations of
+  \code{rps_round} as arguments, and returns true if they agree on all
+  inputs.  For example:
+\begin{ocaml}
+# test_rps_eq rps_round_enum rps_round_enum;;
+- : bool = true
+
+# test_rps_eq rps_round_enum rps_round_with_helper;;
+- : bool = true
+
+# let rps_round_bogus a b = AWin in
+test_rps_eq rps_round_enum rps_round_bogus;;
+- : bool = false
+
+# let rps_round_bogus a b = AWin in
+test_rps_eq rps_round_bogs rps_round_bogus;;
+- : bool = true
+\end{ocaml}
+
+\item{} [code] Use \code{all_pairs} and \code{test_rps_eq} to
+  implement a function \code{test_all_rps} that takes a list of
+  \code{rps_round} implementations as arguments and returns true if
+  all of them are equal on all inputs:
+\begin{ocaml}
+# test_all_rps [rps_round_enum; rps_round_single_match;
+  rps_round_nested_match; rps_round_with_helper];;
+- : bool = true
+
+# let rps_round_bogus a b = AWin in
+test_all_rps [rps_round_enum; rps_round_bogus];;
+- : bool = false
+\end{ocaml}
+\end{enumerate}
+
+\exercise{} A rock-paper-scissors player can be represented as a
+function that takes in a list of the opponent's previous moves, and
+returns a move for the next round:
+\begin{ocaml}
+type history = move list
+type player  = history -> move
+\end{ocaml}
+For example, the player that always chooses \code{Rock} would be
+represented as
+\begin{ocaml}
+let always_rock : player = fun history -> Rock
+\end{ocaml}
+
+By convention, we will store the most recent move at the head of the
+list.  For example, in the following game,
+
+\begin{center}
+\begin{tabular}{rccccc}
+round    &  1 & 2 & 3 & 4 & 5 \\
+\hline
+A's move & Rock & Paper & Paper & Scissors & ? \\
+B's move & Rock & Paper & Paper & Scissors &   \\
+\end{tabular}
+\end{center}
+
+the list passed to player A for the fifth round will be
+\code{[Scissors; Paper; Paper; Rock]}.
+
+\begin{enumerate}[(a)]
+\item{} [code] Implement a player \code{beats_last} that always beats
+  the most recent move that the opponent made.  \code{beats_last}
+  should play Rock on the first move.  For example:
+
+\begin{ocaml}
+# beats_last [Rock; Paper; Paper; Scissors];;
+- : move = Paper
+
+# beats_last [Paper];;
+- : move = Scissors
+
+# beats_last [];;
+- : move = Rock
+\end{ocaml}
+
+\item{} [code] Write a function \code{always_plays} that takes a \code{move} and returns
+      a player that always plays that move.  For example:
+\begin{ocaml}
+# let always_paper = always_plays Paper;;
+always_paper : player = <fun>
+
+# always_paper [];;
+- : move = Paper
+
+# always_paper [Scissors; Scissors; Scissors];;
+- : move = Paper
+\end{ocaml}
+
+\item{} [code] Write a function \code{rps_game} that takes two players
+  and keeps running rounds until one of them wins.  It should return
+  \code{true} if the first wins; false otherwise.  Use any of your
+  implementations of \code{rps_round} from Exercise 1.
+\end{enumerate}
+
+\exercise{}
+\begin{enumerate}[(a)]
+\item{} [code] Write a function
+% JNF: pair_merge seems like a better name.
+\begin{ocaml}
+pair_filter : ('a -> 'a -> 'a) -> 'a list -> 'a list
+\end{ocaml}
+\code{pair_filter} takes two inputs: a function \code{compare} that
+returns one of two values, and a list \code{l} of values.  The
+\code{pair_filter} function should break \code{l} into adjacent
+pairs, and apply \code{compare} to each pair.  It should return a list
+containing the resulting values.  For example,
+\begin{ocaml}
+pair_filter max [0; 5; 7; 2; 3; -10]
+  $\downarrow$ [max 0 5; max 7 2; max 3 -10]
+  $\downarrow$ [5; 7; 3]
+\end{ocaml}
+
+If the input list has odd length, then the last element should be
+returned as well.  For example,
+\begin{ocaml}
+pair_filter min [1; 2; 3; 4; 5]
+  $\downarrow$ [min 1 2; min 3 4; 5]
+  $\downarrow$ [1; 3; 5]
+\end{ocaml}
+
+\item{} [code] Write a function
+\begin{ocaml}
+tournament : ('a -> 'a -> 'a) -> 'a list -> 'a option
+\end{ocaml}
+\code{tournament} should repeatedly call \code{pair_filter} on its input
+list until only a single element \code{w} remains.  It should then return
+\code{Some w}.  If the input list is empty, \code{tournament} should
+return \code{None}.
+
+For example,
+\begin{ocaml}
+tournament max [1; 4; 3; 2; 7; 9; 0]
+  $\downarrow$ tournament max [4; 3; 9; 0]
+  $\downarrow$ tournament max [4; 9]
+  $\downarrow$ tournament max [9]
+  $\downarrow$ Some 9
+\end{ocaml}
+
+\end{enumerate}
+
+\section*{Comments}
+
+[written] At the end of the file, please include any comments you have about
+the problem set, or about your implementation.  This would be a good place to
+document any extra Karma problems that you did (see below), to list any
+problems with your submission that you weren't able to fix, or to give us
+general feedback about the problem set.
+
+\section*{Release files}
+
+The accompanying release file \filename{ps1.zip} contains the following files:
+\begin{itemize}
+\item \filename{writeup/} contains this file and also the \filename{.tex} file
+      we used to generate it (in case you are interested)
+\item \filename{release/ps1.ml} and \filename{written.txt} are templates for
+      you to fill in and submit.
+\item \filename{ps1.mli} contains the interface and documentation for the
+      functions that you will implement in \filename{ps1.ml}
+\item \filename{examples.ml} contains all of the examples from this writeup in
+      the form of unit tests.
+\end{itemize}
+
+\newpage{}
+\section*{Karma Suggestions}
+
+\begin{note}{Note}
+We encourage you to think about different directions that you can take
+the problem sets or different parts of OCaml or functional programming
+that you are curious about.
+
+You may submit any extra work you do in the Karma section of each
+problem set.  We will comment on any extra work that you turn in, but
+Karma \textbf{is completely optional and will not affect your grade in
+any way}.
+\end{note}
+
+Here are some suggestions that may pique your interest:
+\begin{itemize}
+\item{} Implement a player that randomly chooses what symbol to play.
+\item{} Implement a player that asks the user what to play.
+\item{} The \code{game} function will often run forever (e.g. if a deterministic player
+      plays against itself).  Write a function that runs a game but stops and
+      returns \code{Draw} if the game runs for \code{k} rounds.
+\item{} Write a function that takes a (deterministic) player and returns a new
+      player that will beat the first player on the third round.
+\item{} Write a best two of three, best three of five, or best $k$ of $(2k - 1)$
+      tournament.
+\item{} Use \code{tournament} and \code{rps_game} to implement a
+  rock-paper-scissors tournament.  Find a way to easily identify the
+  winner.
+\item{} Use your code to implement a different game, such as tic-tac-toe.
+\item{} Use \LaTeX with the 3110 style files for your written questions.
+\end{itemize}
+
+\end{document}
+
+%%
+%% vim: set et ai
+%%

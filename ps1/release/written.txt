@@ -1,0 +1,59 @@
+Fill in and submit this file.
+
+Name: Patrick Cao
+NetID: pxc2
+
+
+Exercise 1
+----------
+
+(a) 8 : int
+(b) ("zardoz", 8) : string * int
+(c) ["zardoz"; 8] : This is not valid because lists can only have one type. This is trying to create a list with a string and an int
+(d) [List.hd] :: [] : ('a list -> 'a) list list
+(e) fun x y -> if x then y else x : bool -> bool -> bool
+(f) fun a (b,c) -> a c (b c) :l
+
+Exercise 2
+----------
+
+(a) fun x y -> x + y
+(b) fun f -> 1 + (f 5)
+(c) fun x y -> x + y
+(d) fun x -> x
+(e) fun x y -> x
+(f) fun f a b -> (f (a,b))
+
+Exercise 2
+----------
+(a) 
+	Explain in one or two sentences why rps_round_enum is
+    less-error prone than rps_round
+
+rps_round_enum is less error prone because it restricts the possible input and outputs. The compiler will enforce type safety of the method and thus less of a chance that there will be an incorrect input or incorrect output. For example a typo in rps_round would mean that it could return 5 for one of its cases. This would return an answer that is completely invalid and it would not be caught by the compiler.
+
+
+(b) Explain in one or two sentences why rps_round_nested_match is
+    less-error prone than rps_round_enum
+
+The rps_round_nested_match is less-error prone because the compiler will check to make sure that your pattern matching is exhaustive. With the if else statements you could easily leave a case out and not know about it. Pattern matching forces you to account for every possible case.
+
+
+(d) Explain one way in which the rps_round_with_helper implementation
+    is less error-prone than rps_round_single_match.  Explain one
+    way in which rps_round_with_helper is more error-prone than
+    rps_round_single_match
+
+The rps_round_with_helper makes it slightly harder to understand the game logic than with rps_round_single_match because of the helper method. It could make it harder to identify any errors since the code is much denser and compact than in rps_round_single_match.
+
+The rps_round_with_helper is less error prone because if you needed to add additional moves into the game it would require less coding in order to make that change. You would only need to add the cases where a beats b into the match pattern whereas in the rps_round_single_match you would need to write all the possible combinations. 
+
+
+Comments
+--------
+
+Optional Karma
+--------------
+
+
+
