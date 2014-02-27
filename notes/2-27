@@ -1,0 +1,45 @@
+module Set2 : SET = struct
+(*
+	Abstraction function: 
+		the list [a1;...;an] represents the set {a1;...;an}
+		the [] represents {}
+		note that the list muct no conatin duplicates
+*)
+type 'a set = 'a list
+
+let repOK (l : 'a list) : bool = 
+		List.fold_right (fun x t -> assert (not (list,mem x t)) x :: t);
+let empty = []
+let mem = List.mem
+let add x l =
+	if mem x l then l else x :: l
+let rem x = 
+	List.filter ((<>) x)
+let size = List.length
+let union l1 l2 =
+	List.fold_left (fun a x -> if mem x l2 then a else x :: a) l1
+let inter l1 l2 = 
+	List.filter (fun h -> mem h l2) l1
+end
+
+
+
+
+
+Abstraction function matches concrete thing to be abstracted
+
+abstract object
+
+concrete object
+
+List maps to Set 
+
+subset of concrete universe where the invariant holds
+
+
+
+
+
+
+
+
