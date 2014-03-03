@@ -18,7 +18,8 @@ let solution = S.solve initial
 
 module A = Animation.Make(TilePuzzle)
 
-let () = match solution with
+let () = 	
+	match solution with
   | Some p -> A.run initial p
   | None   -> A.run initial []
 

@@ -49,7 +49,7 @@ end
 (** Heap-backed priority queue implementation *********************************)
 (******************************************************************************)
 module HeapImpl = struct
-
+	
   type 'a tree = Leaf | Node of 'a tree * 'a * 'a tree
   type 'a t = 'a tree * 'a comparator
   type dir = Left | Right
@@ -79,7 +79,7 @@ module HeapImpl = struct
   let empty    cmp  = (Leaf,cmp)
 
   let insert   x pq = 
-  		let p = path_to_last (1 + 1) in 
+  		let p = path_to_last ((size pq) + 1) in 
   		let rec helper x tree path = 
 	  		match path with 
 	  		| [] -> Node (Leaf,x,Leaf)
@@ -90,26 +90,16 @@ module HeapImpl = struct
 	  				match hd with
 	  				| Left -> if ((snd pq) v x = Lt) then Node ( (helper v l tl), x , r)
 	  											else Node ( (helper x l tl), v , r)
-	  				| Right -> if ((snd pq) v x = Lt) then Node (l , v , (helper x r tl))
-	  											else Node ( (helper x l tl), v , r)
+
+	  				| Right -> if ((snd pq) v x = Lt) then Node (l , x , (helper v r tl))
+	  											else Node ( l, v , (helper x l tl))
 	  				)
 	  			)
   		in
   		((helper x (fst pq) p ), snd pq)
 
-
-  let remove   pq   =   		
-  		(*Swap assumes that no leaf will be passed in*)
-  		let swap (parent : 'a tree) (child : 'a tree) (direc : dir) = 
-  			match parent with
-  			| Leaf -> parent
-  			| Node (l,v,r) -> (
-  				match child with
-  				| Leaf -> parent
-  				| Node (l2,v2,r2) -> if direc = Left then Node (Node (l2,v,r2),v2,r)
-  									else Node (l, v2 , Node (l2,v,r2))
-  			)
-  		in
+  let remove   pq   =   	
+  		(*Gets the value in the last node of the tree*)	
   		let rec getLastNode (tree : 'a tree) (path : dir list) : 'a = 
   			match path with 
   			| [] -> (
@@ -124,7 +114,8 @@ module HeapImpl = struct
 	  				if hd = Left then getLastNode l tl
 	  				else getLastNode r tl
   			)
-  		in  		
+  		in
+  		(*Returns tree with the last rightmost node removed*)
   		let rec removeLastNode (tree : 'a tree) (path : dir list) : 'a tree =   			
   			match path with 
   			| [] -> failwith "Should not have given an empty path"
@@ -141,24 +132,66 @@ module HeapImpl = struct
   				| Node (l,v,r) -> 
   					if hd = Left then Node ( Leaf, v , r)
   					else Node ( l , v , Leaf)
-  				)
-  			
+  				)  			
   		in
-  		let rec repair pq = 
-  			pq
+  		(*Repairs the heap property of the tree*)
+  		let rec repair tree compar = 
+  			match tree with 
+  			| Leaf -> Leaf
+  			| Node(l,v,r) -> (
+  				match r with
+  				| Leaf -> ( (*Right node is empty*)
+  					match l with
+  					| Leaf -> tree
+  					| Node( l1 ,vl,r1 ) -> if(compar vl v = Gt) then (*Only Left tree has a node*)
+  												Node ( repair (Node(l1,v,r1)) compar , vl, r)
+  											else
+  												tree
+  				)
+
+  				| Node ( l2,vr,r2) -> ( (*Right node has a value*)
+  					match l with
+  					| Leaf -> failwith("Should not have a right branch without a left")
+  					| Node (l3,vl,r3) -> 
+  						if (compar vl vr = Gt) then (*Left value greater than right*)
+  							(if(compar vl v = Gt) then (*left value greater than root*)
+  								Node ( repair (Node(l3,v,r3)) compar, vl, r)
+  							else
+  								tree (*Current Node is in correct place*)
+  							)
+  						else (*Right node greater than left*)
+  							(	
+  							if(compar vr v = Gt) then (*Right is larger than root*)
+  								Node ( l, vr, (Node(l2,v,r2)))
+  							else tree
+  							)
+  				)
+  			)
   		in 
-  		let rec helper pq = 
-  			let lastVal = getLastNode (fst pq) (path_to_last (size pq)) in
-  			lastVal
+  		let rec helper pq lastVal=   			
+	  			let removedTree = 
+	  				match removeLastNode (fst pq) (path_to_last (size pq)) with
+	  				| Leaf -> Leaf
+	  				| Node (l,v,r) -> Node(l,lastVal,r)
+	  			in
+	  			repair removedTree (snd pq)
   		in
 	  		if is_empty pq then None 
-	  		else Some ((helper pq) , snd pq)
+	  		else 
+		  		let lastVal = getLastNode (fst pq) (path_to_last (size pq)) in 
+		  		Some ( lastVal,  ((helper pq lastVal) , (snd pq)) ) 
 
   let max      pq   = 
-                    match pq with
+                    match (fst pq) with
                     | Leaf -> None
                     | Node (left,v,right) -> Some v
-
+   let traverse pq =    
+	  let rec preOrder tree = 
+	    match tree with
+	    | Leaf -> []
+	    | Node (left,v,right) -> v :: (preOrder left ) @ (preOrder right)
+	  in
+	    preOrder (fst pq)
 
 end
 
