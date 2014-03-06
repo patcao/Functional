@@ -44,25 +44,44 @@ if List.length chars = 0 then Empty
 else Tree (loop queue)
 
 let encode enc chars = 
-	let rec pathTo elem tree path = 
+	(*Gives the path to a specific element. Path is composed of bit*)
+	let rec pathTo elem tree encoding = 
 		match tree with
-		| Leaf(e) -> if e = elem then Some [] else None
+		| Leaf(e) -> if e = elem then Some encoding else None
 		| Node (l, r) -> 
-			match pathTo elem l (Zero::path) with
+			match pathTo elem l (Zero :: encoding)  with
 			| None -> 
-				( match pathTo elem r (One :: path) with
+				( match pathTo elem r (One :: encoding) with
 				  | None -> None
-				  | Some p -> Some (One :: p)
+				  | Some p -> Some p (*One :: p*)
 				)
-			| Some p -> Some (Zero :: p)
+			| Some p -> Some p
 	in
-	let rec helper lst code = 
+	let rec helper lst (encoded : bit list)= 
 		match lst with
-		| [] -> code
+		| [] -> encoded
 		| hd :: tl -> 
-			(pathTo hd enc []) @ (helper tl code)
+			match pathTo hd enc encoded with
+			| None -> failwith ("Character not in tree")
+			| Some p -> helper tl p		
 	in
-	helper chars []
+	List.rev (helper chars [])
 
-let decode enc bits  = failwith "sudo make me a sandwich"
+let decode enc bits  = 
+	(*Will recurse itself after finding an element*)
+	let rec helper node bitLst accum = 						
+	 	match node with 
+		| Leaf (v) -> helper enc bitLst (v :: accum)
+		| Node (t1 , t2) -> (
+			match bitLst with
+			| [] -> accum
+			| hd :: tl -> (
+				match hd with
+				| Zero -> helper t1 tl accum
+				| One -> helper t2 tl accum	
+			)
+		)				
+	in
+List.rev (helper enc bits []) 
+
 

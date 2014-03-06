@@ -51,6 +51,8 @@ end
 module HeapImpl = struct
 	
   type 'a tree = Leaf | Node of 'a tree * 'a * 'a tree
+  (* record = { tree : 'a tree; comparator : 'a comparator ; size : int}*)
+  
   type 'a t = 'a tree * 'a comparator
   type dir = Left | Right
 
@@ -68,18 +70,19 @@ module HeapImpl = struct
     let rec helper tree = 
       match tree with
       | Leaf -> 0
-      | Node (left,v,right) -> 1 + helper left + helper right
+      | Node (left,v,right) -> 1 + helper left+ helper right
     in
     	helper (fst pq)
 
-  let is_empty pq   = (fst pq) = Leaf
+  let is_empty pq   =  match pq with
+                      | (t,c) -> t = Leaf
 
   let comparator pq = snd pq
 
   let empty    cmp  = (Leaf,cmp)
 
   let insert   x pq = 
-  		let p = path_to_last ((size pq) + 1) in 
+  		let p = path_to_last ( (size pq) + 1) in 
   		let rec helper x tree path = 
 	  		match path with 
 	  		| [] -> Node (Leaf,x,Leaf)
@@ -92,7 +95,7 @@ module HeapImpl = struct
 	  											else Node ( (helper x l tl), v , r)
 
 	  				| Right -> if ((snd pq) v x = Lt) then Node (l , x , (helper v r tl))
-	  											else Node ( l, v , (helper x l tl))
+	  											else Node ( l, v , (helper x r tl))
 	  				)
 	  			)
   		in
@@ -118,7 +121,7 @@ module HeapImpl = struct
   		(*Returns tree with the last rightmost node removed*)
   		let rec removeLastNode (tree : 'a tree) (path : dir list) : 'a tree =   			
   			match path with 
-  			| [] -> failwith "Should not have given an empty path"
+  			| [] -> Leaf
   			| hd :: hd2 :: tl ->(
   				match tree with 
   				| Leaf -> failwith "Should not have reached a leaf"
@@ -162,7 +165,7 @@ module HeapImpl = struct
   						else (*Right node greater than left*)
   							(	
   							if(compar vr v = Gt) then (*Right is larger than root*)
-  								Node ( l, vr, (Node(l2,v,r2)))
+  								Node ( l, vr, repair (Node(l2,v,r2)) compar )
   							else tree
   							)
   				)
@@ -173,18 +176,27 @@ module HeapImpl = struct
 	  				match removeLastNode (fst pq) (path_to_last (size pq)) with
 	  				| Leaf -> Leaf
 	  				| Node (l,v,r) -> Node(l,lastVal,r)
-	  			in
+	  			in	  			
 	  			repair removedTree (snd pq)
   		in
-	  		if is_empty pq then None 
-	  		else 
-		  		let lastVal = getLastNode (fst pq) (path_to_last (size pq)) in 
-		  		Some ( lastVal,  ((helper pq lastVal) , (snd pq)) ) 
+  		let getRootVal pq = 
+  			match pq with
+  			| (tree,comp) -> 
+  				match tree with
+  				| Leaf -> failwith("Should not be seeing a Leaf here")
+  				| Node (l,v,r) -> v
+  		in
+	if is_empty pq then None 
+	  else 
+		let lastVal = getLastNode (fst pq) (path_to_last (size pq)) in 
+		 Some ( getRootVal pq ,  ((helper pq lastVal) , (snd pq)) ) 
 
   let max      pq   = 
                     match (fst pq) with
                     | Leaf -> None
                     | Node (left,v,right) -> Some v
+
+                    (*
    let traverse pq =    
 	  let rec preOrder tree = 
 	    match tree with
@@ -192,7 +204,7 @@ module HeapImpl = struct
 	    | Node (left,v,right) -> v :: (preOrder left ) @ (preOrder right)
 	  in
 	    preOrder (fst pq)
-
+*)
 end
 
 (******************************************************************************)

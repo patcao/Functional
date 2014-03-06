@@ -1,5 +1,6 @@
 
 open PQueue
+open Util
 
 (** See solver.mli *)
 module type PUZZLE = sig
@@ -40,27 +41,45 @@ end
 module Make (Puzzle:PUZZLE) = struct
   open Puzzle
   
-  let solve state : Puzzle.move list option =   
-    let findMove (src:state) (trgt:state) : move =                 
-        let moves = (moves src) in
-        List.fold_left (fun a x -> if (apply src x) = trgt then x else a) (List.hd moves) moves
-    in        
-    let rec helper path state seen = 
-      if (is_goal state)                     then state::seen, Some [] 
-      else if List.exists (equal state) seen then state::seen, None
-      else(
-        let rec nxtNode queue (seen : state list) =                        
-                match (ListImpl.remove queue) with (*Most good state is in the first part of tuple*)
-                | None -> seen, None
-                | Some (s,q) -> 
-                    match helper ((findMove state s) :: path) s seen with
-                    | seen, Some path -> seen, Some ( (findMove state s)::path)
-                    | seen, None -> nxtNode q seen
-        in 
-        let queue =  List.fold_left (fun a m -> ListImpl.insert (apply state m) a) (ListImpl.empty Puzzle.goodness) (moves state) 
-        (*Add list of states to pQueue*)      
-        in nxtNode queue (state::seen)
-      )
+  let solve state : Puzzle.move list option =    
+      (*Performs some initial tasks like creating the pQueue*)    
+      let initial state : move list option =
 
-    in snd (helper [] state [])
+        let rec helper state path queue seen pathLength: move list option=
+        if is_goal state then Some path
+      else(
+          (*Add all the adjacent states that haven't been seen yet*)
+          (*Fold across a list of moves. Want to put in <state>,<path>,<path length>*)
+          let queue = List.fold_left 
+          (fun a e ->  if List.exists (equal (apply state e)) seen then a
+                        else HeapImpl.insert ( (apply state e),e :: path, pathLength + 1) a
+                        ) 
+          queue (moves state) in 
+          (*Pop the next best node off the stack*)
+          match (HeapImpl.remove queue) with
+          | None -> None
+          | Some ( (s,p, pLength) , q) -> 
+                  helper s p q (state :: seen) pLength                  
+          )
+        in
+          (*Comparator for the priority queue*)
+          let compar (s1,p1,pL1) (s2,p2,pL2) = match goodness s1 s2 with
+                                                    | Gt -> Gt
+                                                    | Lt -> Lt 
+                                                    | Eq -> 
+                                                      if pL1 < pL2
+                                                      then Gt else Lt
+          in
+          (*Queue stores a tuple of <state>,<path to initial>m <path length>*)   
+          let queue = HeapImpl.empty (compar) in        
+          match (helper state [] queue [] 0) with
+          | None -> None
+          | Some p -> Some (List.rev p)
+      in
+    initial state
 end
+
+   
+
+
+
