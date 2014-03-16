@@ -51,9 +51,9 @@ end
 module HeapImpl = struct
 	
   type 'a tree = Leaf | Node of 'a tree * 'a * 'a tree
-  (* record = { tree : 'a tree; comparator : 'a comparator ; size : int}*)
-  
-  type 'a t = 'a tree * 'a comparator
+  type 'a record = { tree : 'a tree; comparator : 'a comparator ; size : int}
+  type 'a t = 'a record
+  (*type 'a t = 'a tree * 'a comparator*)
   type dir = Left | Right
 
   (** returns the path from the root to the last node in a complete binary tree
@@ -67,22 +67,16 @@ module HeapImpl = struct
     in helper [] s
 
   let size     pq   = 
-    let rec helper tree = 
-      match tree with
-      | Leaf -> 0
-      | Node (left,v,right) -> 1 + helper left+ helper right
-    in
-    	helper (fst pq)
+    pq.size
 
-  let is_empty pq   =  match pq with
-                      | (t,c) -> t = Leaf
+  let is_empty pq   = pq.tree = Leaf
 
-  let comparator pq = snd pq
+  let comparator pq = pq.comparator
 
-  let empty    cmp  = (Leaf,cmp)
+  let empty    cmp  = {tree = Leaf ; comparator = cmp ; size = 0}
 
   let insert   x pq = 
-  		let p = path_to_last ( (size pq) + 1) in 
+  		let p = path_to_last ( pq.size + 1) in 
   		let rec helper x tree path = 
 	  		match path with 
 	  		| [] -> Node (Leaf,x,Leaf)
@@ -91,15 +85,15 @@ module HeapImpl = struct
 	  			| Leaf -> Node (Leaf, x , Leaf)
 	  			| Node (l,v,r) -> (
 	  				match hd with
-	  				| Left -> if ((snd pq) v x = Lt) then Node ( (helper v l tl), x , r)
+	  				| Left -> if (pq.comparator v x = Lt) then Node ( (helper v l tl), x , r)
 	  											else Node ( (helper x l tl), v , r)
 
-	  				| Right -> if ((snd pq) v x = Lt) then Node (l , x , (helper v r tl))
+	  				| Right -> if (pq.comparator v x = Lt) then Node (l , x , (helper v r tl))
 	  											else Node ( l, v , (helper x r tl))
 	  				)
 	  			)
   		in
-  		((helper x (fst pq) p ), snd pq)
+  		{tree = (helper x (pq.tree) p ); comparator = pq.comparator ; size = pq.size + 1}
 
   let remove   pq   =   	
   		(*Gets the value in the last node of the tree*)	
@@ -173,38 +167,26 @@ module HeapImpl = struct
   		in 
   		let rec helper pq lastVal=   			
 	  			let removedTree = 
-	  				match removeLastNode (fst pq) (path_to_last (size pq)) with
+	  				match (removeLastNode pq.tree (path_to_last pq.size)) with
 	  				| Leaf -> Leaf
 	  				| Node (l,v,r) -> Node(l,lastVal,r)
 	  			in	  			
-	  			repair removedTree (snd pq)
+	  			repair removedTree pq.comparator
   		in
-  		let getRootVal pq = 
-  			match pq with
-  			| (tree,comp) -> 
-  				match tree with
+  		let getRootVal pq =   			
+  				match pq.tree with
   				| Leaf -> failwith("Should not be seeing a Leaf here")
   				| Node (l,v,r) -> v
   		in
 	if is_empty pq then None 
 	  else 
-		let lastVal = getLastNode (fst pq) (path_to_last (size pq)) in 
-		 Some ( getRootVal pq ,  ((helper pq lastVal) , (snd pq)) ) 
+		let lastVal = getLastNode pq.tree (path_to_last pq.size) in 
+		 Some ( getRootVal pq ,  { tree = (helper pq lastVal) ; comparator =  pq.comparator ; size = pq.size - 1 }  ) 
 
   let max      pq   = 
-                    match (fst pq) with
+                    match pq.tree with
                     | Leaf -> None
-                    | Node (left,v,right) -> Some v
-
-                    (*
-   let traverse pq =    
-	  let rec preOrder tree = 
-	    match tree with
-	    | Leaf -> []
-	    | Node (left,v,right) -> v :: (preOrder left ) @ (preOrder right)
-	  in
-	    preOrder (fst pq)
-*)
+                    | Node (left,v,right) -> Some v                  
 end
 
 (******************************************************************************)
@@ -216,7 +198,7 @@ module Heapsort (PQ : PQ) = struct
     | None        -> []
     | Some (x,h') -> x::to_list h'
 
-  let rec of_list cmp l = List.fold_right PQ.insert l (PQ.empty cmp)
+  let rec of_list cmp l = List.fold_right (PQ.insert) l (PQ.empty cmp)
 
   let sort compare l =
     let cmp x y =

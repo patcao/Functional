@@ -400,24 +400,6 @@ let fig1_heap =
 	| None -> None
 	| _ -> failwith "error, should be none";;
 
-
-module Hsort = Heapsort(HeapImpl)
-module Lsort = Heapsort(ListImpl)
-(*
-TEST "heapsort" = 
-	let rec random seed n lst = 
-		if n > 0 then
-			random seed (n-1) ((Random.int seed) :: lst)
-		else
-			lst
-	in
-	let cmp = fun x y -> if x > y then 1 
-		else if x < y then -1 else 0
-	in
-	let lst = random 1000000 150000 []
-	in 
-	Hsort.sort cmp lst = Lsort.sort cmp lst
-*)
-
+	
 
 (* Tested insert in utop *)
