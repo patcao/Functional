@@ -24,7 +24,26 @@ let concat (env1 : environment) (env2 : environment) : environment =
   IdMap.fold (fun x v e -> IdMap.add x v e) env1 env2
 
 let rec pattern_match (v : value) (p : pattern) : bool * environment =
-  failwith "Starting without me?"
+    let emptyMap = IdMap.empty in 
+    match p with 
+    | PConstant(const)-> (
+                              match (const,v) with 
+                              | Bool(b1),VBool(b2) -> if b1 = b2 then (true, emptyMap) else (false,emptyMap)
+                              | Int(num1),VInt(num2) -> if num1 = num2 then (true, emptyMap) else (false,emptyMap)
+                              | Nil, VNil -> (true, emptyMap)
+                              | Unit,VUnit -> (true, emptyMap)
+                              | _ -> (false,emptyMap)
+                          )    
+    | PVar(id) -> (true , IdMap.add id (ref v) emptyMap)
+
+    | PCons(p1,p2) -> match v with
+                      VCons ( v1,v2 )-> (
+                                          match (pattern_match v1 p1),(pattern_match v2 p2)  with
+                                          | (b1,en1),(b2,en2) -> if b1 && b2 then (true , concat en1 en2)
+                                                                  else (false,emptyMap)
+                                        )                 
+
+                      | _ -> (false,emptyMap)
 
 let update (x : id) (v : value) (env : environment) : unit =
   try (IdMap.find x env) := v with Not_found -> ()
@@ -48,26 +67,25 @@ let rec eval (e : expr) (env : environment) : value =
                             | VBool(false) -> (eval e3 env)
                             | _ -> failwith("type error in if then else") 
                           )
-  | Let(id,e1,e2) -> eval e2 ( IdMap.add id (ref (eval e1 env)) env )
+  | Let(id,e1,e2) -> update id (eval e1 env) env; eval e2 env (**IdMap.add id (ref (eval e1 env)) env **)
   | LetRec (id,e1,e2) -> VUnit
   | App (e1,e2) ->(
                     match (eval e1 env) with
-                    | VClosure (envi,id,exp) -> eval exp (IdMap.add id (ref(eval e2 env)) envi)
+                    | VClosure (envi,id,exp) ->update id (eval e2 env) envi; eval exp envi (**(IdMap.add id (ref(eval e2 env)) envi)**)
                     | _ -> failwith ("Evaluation of function did not give back a VClosure")
                   )
-  | Match (e2,lst) -> 
+  | Match (e2,lst) ->        
             let v2 = eval e2 env in 
             let rec helper l = 
               match l with
               [] -> failwith ("Pattern matching was not exhaustive")
-              | (pat,exp) :: tl -> 
-                      ( match pat with
-                        | PConstant(c) -> 
-                        | PVar (id) -> 
-                        | PCons (p1,p2) -> 
-                      )
+              | (pat,exp) :: tl -> (
+                      match (pattern_match v2 pat) with
+                      | (b , en) -> if b then eval exp en else helper tl
+                    )
             in
             helper lst
+            (** NOTE: WORK OUT SCOPING OF VARIABLES**)
 
 
 and eval_operator env = function
