@@ -28,13 +28,13 @@ let rec pattern_match (v : value) (p : pattern) : bool * environment =
     match p with 
     | PConstant(const)-> (
                               match (const,v) with 
-                              | Bool(b1),VBool(b2) -> if b1 = b2 then (true, emptyMap) else (false,emptyMap)
-                              | Int(num1),VInt(num2) -> if num1 = num2 then (true, emptyMap) else (false,emptyMap)
+                              | Bool(b1),VBool(b2) -> b1 = b2, emptyMap
+                              | Int(num1),VInt(num2) -> num1 = num2, emptyMap
                               | Nil, VNil -> (true, emptyMap)
                               | Unit,VUnit -> (true, emptyMap)
                               | _ -> (false,emptyMap)
                           )    
-    | PVar(id) -> (true , IdMap.add id (ref v) emptyMap)
+    | PVar(id) ->         (true , IdMap.add id (ref v) emptyMap)
 
     | PCons(p1,p2) -> match v with
                       VCons ( v1,v2 )-> (
@@ -56,7 +56,7 @@ let rec eval (e : expr) (env : environment) : value =
                    | Nil -> VNil
                    | Unit -> VUnit
                 )
-  | Var(vID) -> (try !(IdMap.find vID env) with Not_found -> failwith("Variable was not found in the environment"))
+  | Var(vID) -> (try !(IdMap.find vID env) with Not_found -> failwith("Variable was not found in the environment"^vID))
   | Fun (id,e1) -> VClosure (env,id,e1)
   | BinaryOp (op,e1,e2) -> eval_operator env (BinaryOp(op,e1,e2))
   | UnaryOp (op,e1) ->  eval_operator env (UnaryOp(op,e1))
@@ -67,11 +67,11 @@ let rec eval (e : expr) (env : environment) : value =
                             | VBool(false) -> (eval e3 env)
                             | _ -> failwith("type error in if then else") 
                           )
-  | Let(id,e1,e2) -> update id (eval e1 env) env; eval e2 env (**IdMap.add id (ref (eval e1 env)) env **)
-  | LetRec (id,e1,e2) -> VUnit
+  | Let(id,e1,e2) -> (*update id (eval e1 env) env;*) eval e2 (IdMap.add id (ref (eval e1 env)) env)
+  | LetRec (id,e1,e2) -> (let env' = (IdMap.add id (ref VUndef) env) in update id (eval e1 env') env'; eval e2 env')
   | App (e1,e2) ->(
                     match (eval e1 env) with
-                    | VClosure (envi,id,exp) ->update id (eval e2 env) envi; eval exp envi (**(IdMap.add id (ref(eval e2 env)) envi)**)
+                    | VClosure (envi,id,exp) -> eval exp (IdMap.add id (ref(eval e2 env)) envi)
                     | _ -> failwith ("Evaluation of function did not give back a VClosure")
                   )
   | Match (e2,lst) ->        
@@ -81,12 +81,12 @@ let rec eval (e : expr) (env : environment) : value =
               [] -> failwith ("Pattern matching was not exhaustive")
               | (pat,exp) :: tl -> (
                       match (pattern_match v2 pat) with
-                      | (b , en) -> if b then eval exp en else helper tl
+                      | (b , en) -> if b then eval exp (concat en env) else helper tl
                     )
             in
             helper lst
-            (** NOTE: WORK OUT SCOPING OF VARIABLES**)
-
+            (** NOTE: WORK OUT SCOPING OF VARIABLES **)
+ (**let rec fact x = match x with 1 -> 1 | x -> x * (fact (x-1))**)
 
 and eval_operator env = function
   | BinaryOp (op,e1,e2) -> begin
