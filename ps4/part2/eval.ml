@@ -56,7 +56,7 @@ let rec eval (e : expr) (env : environment) : value =
                    | Nil -> VNil
                    | Unit -> VUnit
                 )
-  | Var(vID) -> (try !(IdMap.find vID env) with Not_found -> failwith("Variable was not found in the environment"^vID))
+  | Var(vID) -> (try !(IdMap.find vID env) with Not_found -> unbound_var vID)
   | Fun (id,e1) -> VClosure (env,id,e1)
   | BinaryOp (op,e1,e2) -> eval_operator env (BinaryOp(op,e1,e2))
   | UnaryOp (op,e1) ->  eval_operator env (UnaryOp(op,e1))
@@ -65,20 +65,20 @@ let rec eval (e : expr) (env : environment) : value =
                             match (eval e1 env) with
                             | VBool(true) -> (eval e2 env)
                             | VBool(false) -> (eval e3 env)
-                            | _ -> failwith("type error in if then else") 
+                            | _ -> type_error e1 TBool
                           )
   | Let(id,e1,e2) -> (*update id (eval e1 env) env;*) eval e2 (IdMap.add id (ref (eval e1 env)) env)
   | LetRec (id,e1,e2) -> (let env' = (IdMap.add id (ref VUndef) env) in update id (eval e1 env') env'; eval e2 env')
   | App (e1,e2) ->(
                     match (eval e1 env) with
                     | VClosure (envi,id,exp) -> eval exp (IdMap.add id (ref(eval e2 env)) envi)
-                    | _ -> failwith ("Evaluation of function did not give back a VClosure")
+                    | _ -> runtime_error ("Evaluation of function did not give back a VClosure")
                   )
   | Match (e2,lst) ->        
             let v2 = eval e2 env in 
             let rec helper l = 
               match l with
-              [] -> failwith ("Pattern matching was not exhaustive")
+              [] -> inexhaustive e2
               | (pat,exp) :: tl -> (
                       match (pattern_match v2 pat) with
                       | (b , en) -> if b then eval exp (concat en env) else helper tl
@@ -109,7 +109,7 @@ and eval_operator env = function
                     match (eval e env) with
                     | VBool(true) -> VBool(false)
                     | VBool(false) -> VBool(true)
-                    | _ -> failwith ("Unary operator can only be applied to boolean")
+                    | _ -> runtime_error ("Unary operator can only be applied to boolean")
                   )
   | _ as e -> begin
     let msg = Printf.sprintf

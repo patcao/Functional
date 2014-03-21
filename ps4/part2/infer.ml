@@ -74,17 +74,111 @@ let alpha_vary (t : typ) : typ =
     | Arrow (u,v) -> Arrow (replace s u, replace s v) in
   replace s t
 
-let rec annotate (e : expr) (fvs : (id, typ) Hashtbl.t) : aexpr =
-  failwith "I can't see anything. Fire anyway."
+let print_Annotate anExpr = 
+begin 
+  match anExpr with 
+  | ABool(b,typ)       -> print_string "Bool";
+  | AInt(num,type1) -> print_string "Int";
+  | ANil(type1)     -> print_string "Nil";
+  | AUnit(type1)    -> print_string "Unit";
+  | ACons(e1,e2,type1) -> print_string "ACons";
+  | AIfThenElse(e1,e2,e3,type1) -> print_string "IfElse";
+  | ALetRec(id,type1,e1,e2,type2) -> print_string "LetRec";
+  | ALet(id,typ1,e1,e2,typ2)      -> print_string "Let";
+  | ABinaryOp(op,e1,e2,type1)      -> print_string "Binary";
+  | AUnaryOp(op,e1,type1)          -> print_string "Unary";
+  | AFun(id,e1,type1)              -> print_string "Fun";
+  | AApp(e1,e2,type1)              -> print_string "App";
+  | AVar (id,type1)                -> print_string "Var";
+  | AMatch (e1,lst,typ)           -> print_string "Match";
+end
 
+let rec annotate (e : expr) (fvs : (id, typ) Hashtbl.t) : aexpr =
+  match e with
+  | Constant(const) -> 
+              (match const with
+                | Bool(b)  -> ABool(b,TBool)
+                | Int(num) -> AInt(num,TInt)
+                | Nil      -> ANil(next_type_var ())
+                | Unit     -> AUnit(TUnit)
+              )
+  | BinaryOp(op,e1,e2) -> annotate_op fvs fvs e
+  | UnaryOp(op,e1) -> annotate_op fvs fvs e
+  | Var    (id) -> (try  AVar( id , (Hashtbl.find fvs id) ) with Not_found -> unbound_var id)                                        
+  | Fun    (id,e1) ->
+                      let nType = (next_type_var ()) in  
+                      let hashCpy = Hashtbl.copy fvs in                     
+                      Hashtbl.add hashCpy id nType; 
+                      let aE1 = (annotate e1 hashCpy) in 
+                      AFun(id, aE1, Arrow( (nType), (type_of aE1)) )
+  | Cons   (e1,e2) -> let aE1 = annotate e1 fvs in 
+                      let aE2 = annotate e2 fvs in 
+                      (** type check list**)
+                      ACons(aE1, aE2, TList(type_of aE1))            
+  | IfThenElse (e1,e2,e3) -> AIfThenElse (annotate e1 fvs, 
+                                            annotate e2 fvs, 
+                                              annotate e3 fvs,
+                                                 type_of (annotate e3 fvs))
+                              (**Should make sure that e2 and e3 match in types **)  
+  | Let      (id,e1,e2) -> 
+                          let hshCpy = Hashtbl.copy fvs in                           
+                           let aE1 = annotate e1 fvs in
+                           Hashtbl.add hshCpy id (type_of aE1);
+                           let aE2 = annotate e2 hshCpy in                           
+                            ALet(id , (type_of aE1), aE1, aE2, (type_of aE2) )  
+  | LetRec   (id,e1,e2) -> Hashtbl.add fvs id (next_type_var ());
+                           Hashtbl.add fvs id (type_of (annotate e1 fvs));
+                           ALetRec(id,Hashtbl.find fvs id, (annotate e1 fvs), 
+                            (annotate e2 fvs), type_of(annotate e2 fvs))
+  | App      (e1,e2) ->   (*begin                                               
+                          match  (annotate e1 fvs) with
+                          | AVar(id, Arrow(t1,t2)) ->                             
+                            AApp  ( (annotate e1 fvs) ,(annotate e2 fvs) , t2)
+                          | AFun(id, aE1, Arrow( appType , retType) ) ->                              
+                                AApp (aE1, (annotate e2 fvs), retType)    
+                          | AApp(e1,e2,t) -> AApp(e1,e2,t)
+                          | _ -> runtime_error "This expression is not a function. Cannot be applied"
+                        end*)
+                        AApp(annotate e1 fvs,annotate e2 fvs, next_type_var())
+  | Match     (e1,lst) ->   
+           begin  
+            let rec annotate_pattern pat = 
+              match pat with
+              | PConstant(const) -> (match const with 
+                                      | Bool(b) -> APConstant(const, TBool)
+                                      | Int (num) -> APConstant(const, TInt)
+                                      | Nil -> APConstant(const, TUnit)
+                                      | Unit -> APConstant(const, TUnit)
+                                    )                                   
+              | PVar(id) ->  APVar(id , next_type_var() )
+              | PCons (p1,p2) ->  let ap1 = annotate_pattern p1 in 
+                                  APCons( ap1 , annotate_pattern p2 , type_of_pattern ap1)
+            in   
+
+            let rec helper lt acc = 
+              match lt with
+              | [] -> acc
+              | (p1,exp1) :: tl -> 
+                  let ae = annotate exp1 fvs in
+                  let ap = annotate_pattern p1 in
+                  helper tl ((ap,ae) :: acc)
+            in
+            let anList = helper lst [] in 
+
+            AMatch( (annotate e1 fvs) , anList , type_of (snd (List.hd anList)) )
+    end    
+  (**of expr * (pattern * expr) list**)
 and annotate_op fvs bv = function
   | BinaryOp (op,l,r) -> begin
     match op with
-    | Plus
-    | Minus
-    | Mult
-    | Divide
-    | Mod    -> failwith "Hold still and lemme shoot you."
+    | Plus                                   
+    | Minus   
+    | Mult    
+    | Divide 
+    | Mod    -> ABinaryOp (op, 
+                            (annotate l fvs), 
+                              (annotate r fvs), 
+                                TInt )             
     | Gt
     | Lt
     | Ltq
@@ -92,9 +186,12 @@ and annotate_op fvs bv = function
     | Eq
     | Neq
     | And
-    | Or     -> failwith "You guys don't give up!"
+    | Or     -> ABinaryOp (op, 
+                            (annotate l fvs), 
+                              (annotate r fvs), 
+                                TBool )   
   end
-  | UnaryOp (op,e)  -> failwith "There's one down!"
+  | UnaryOp (op,e)  -> AUnaryOp(op, (annotate e fvs), TBool)   
   | _ as e -> begin
     let msg = Printf.sprintf
       "The expression: %s\n is not an operator, but an operator was expected."
@@ -105,7 +202,52 @@ and annotate_op fvs bv = function
 let add_constraint  t  t' u = (t,t')::u
 let add_constraints cs u    = List.fold_left (fun a c -> c::a) u cs
 
-let rec collect aexprs u = failwith "You're too slow! Time to end this!"
+let rec collect aexprs u =
+    match aexprs with
+    | [] -> u
+    | hd :: tl -> 
+    begin
+      match hd with
+      | ABool(b , typ) -> collect tl u 
+      | AInt (num , typ) -> collect tl u 
+      | ANil (typ) -> collect tl u 
+      | AUnit(typ) -> collect tl u 
+      | ACons(e1,e2,typ) -> collect (e1 :: tl)
+                              ( ((type_of e1), typ ) :: 
+                              ((type_of e2),(TList(type_of e1))) ::
+                               u)
+                              (*(  ((type_of e1), TList (type_of e1)) :: u  )*)
+      | AIfThenElse (e1,e2,e3,typ) -> let constrList = 
+                                          (( type_of e1, TBool ) ::
+                                            ((type_of e2), (type_of e3)) ::
+                                              u) in
+                                      collect (e1 :: e2 :: e3 :: tl) constrList
+      | ABinaryOp (op,e1,e2,typ) -> collect_operator_constraints tl u hd
+      | AUnaryOp   (op,e1,typ) -> collect_operator_constraints tl u hd
+      | ALetRec (id,typ1,e1,e2,typ2) -> collect tl ((typ1 , type_of e1) :: u)
+      | ALet    (id,typ1,e1,e2,typ2) -> collect tl ((typ1 , type_of e1) :: u)
+      | AFun    (id,e1,typ) ->          collect (e1 :: tl) u
+      | AApp    (e1,e2,typ) ->         ( match (type_of e1) with
+                                        | Arrow (argType,retType) -> 
+                                          collect (e1 :: e2 :: tl) 
+                                            ( (argType ,type_of e2) :: u)
+                                        | _ -> failwith ("Something went wrong in collect")
+                                      )
+      | AVar   (id, typ) -> collect tl u 
+      | AMatch  (e1,lst, typ) ->     []  
+      (*
+          let rec helper  lt u = 
+              match lt with 
+              | [] -> 
+              | (pat,exp) :: tl -> helper tl 
+                                 (
+                                  (type_of e1 , type_of_pattern pat) :: 
+                                    u)
+          in
+          of aexpr * ((apattern * aexpr) list) * typ
+        *)
+
+    end
 
 and collect_operator_constraints aexprs u = function
   | ABinaryOp (op,l,r,t) -> begin
@@ -133,7 +275,7 @@ and collect_operator_constraints aexprs u = function
       collect (l::r::aexprs) ((t1,t2) :: u)
     end
   end
-  | AUnaryOp (op,ae,t) -> failwith "TODO"
+  | AUnaryOp (op,ae,t) -> collect (ae :: aexprs) ((type_of ae,TBool) :: u)
   | _ as ae -> begin
     let msg = Printf.sprintf
       "The expression: %s\n is not an operator, but an operator was expected."

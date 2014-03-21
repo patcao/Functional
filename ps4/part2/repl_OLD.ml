@@ -25,9 +25,9 @@ let parse_definition s =
   end
 
 let eval_def id e env fvs =
-  let t,v = infer e fvs, eval e env in
-  printf "val %s : %s = %s\n" id (type_to_string t) (val_to_string v);
-  (v,t)
+  (**let t,v = infer e fvs, eval e env in**) let v = eval e env in
+  (**printf "val %s : %s = %s\n" id (type_to_string t) (val_to_string v);**)printf " val %s = %s\n" id (val_to_string v);
+  (**(v,t)**) (v,TUnit)
 
 let commands = [
   "Commands are:";
@@ -48,9 +48,11 @@ let rec repl env fvs =
       repl (IdMap.add id (ref v) env) fvs
     end
     | Expression e -> begin
-      let t,v = type_to_string (infer e fvs), val_to_string (eval e env) in
-      printf "- : %s = %s\n" t v;
-      repl env fvs
+      (**let t,v = type_to_string (infer e fvs), val_to_string (eval e env) in**)
+      let v = val_to_string (eval e env)in
+      (**printf "- : %s = %s\n" t v;**)
+      printf "- : = %s\n" v;
+      repl env fvs 
     end
     | Directive d -> begin
       match d with

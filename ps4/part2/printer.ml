@@ -1,7 +1,7 @@
 open Ast
 open Printf
 
-let debug = false
+let debug = true
 
 let debug_print s =
   if debug then print_endline s
