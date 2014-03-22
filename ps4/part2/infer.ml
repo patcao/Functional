@@ -99,7 +99,7 @@ let rec annotate (e : expr) (fvs : (id, typ) Hashtbl.t) : aexpr =
               (match const with
                 | Bool(b)  -> ABool(b,TBool)
                 | Int(num) -> AInt(num,TInt)
-                | Nil      -> ANil(next_type_var ())
+                | Nil      -> ANil(TList(next_type_var ()))
                 | Unit     -> AUnit(TUnit)
               )
   | BinaryOp(op,e1,e2) -> annotate_op fvs fvs e
@@ -142,7 +142,7 @@ let rec annotate (e : expr) (fvs : (id, typ) Hashtbl.t) : aexpr =
                         AApp(annotate e1 fvs,annotate e2 fvs, next_type_var())
   | Match     (e1,lst) ->   
            begin  
-            let rec annotate_pattern pat = 
+            let rec annotate_pattern pat bv = 
               match pat with
               | PConstant(const) -> (match const with 
                                       | Bool(b) -> APConstant(const, TBool)
@@ -150,22 +150,23 @@ let rec annotate (e : expr) (fvs : (id, typ) Hashtbl.t) : aexpr =
                                       | Nil -> APConstant(const, TUnit)
                                       | Unit -> APConstant(const, TUnit)
                                     )                                   
-              | PVar(id) ->  APVar(id , next_type_var() )
-              | PCons (p1,p2) ->  let ap1 = annotate_pattern p1 in 
-                                  APCons( ap1 , annotate_pattern p2 , type_of_pattern ap1)
+              | PVar(id) -> let nType = next_type_var () in  
+                            Hashtbl.add bv id nType;
+                            APVar(id , nType)
+              | PCons (p1,p2) ->  let ap1 = annotate_pattern p1 bv in 
+                                  APCons( ap1 , annotate_pattern p2 bv , type_of_pattern ap1)
             in   
-
             let rec helper lt acc = 
               match lt with
               | [] -> acc
               | (p1,exp1) :: tl -> 
-                  let ae = annotate exp1 fvs in
-                  let ap = annotate_pattern p1 in
+                  let bv = Hashtbl.copy fvs in 
+                  let ap = annotate_pattern p1 bv in
+                  let ae = annotate exp1 bv in                  
                   helper tl ((ap,ae) :: acc)
             in
-            let anList = helper lst [] in 
-
-            AMatch( (annotate e1 fvs) , anList , type_of (snd (List.hd anList)) )
+            let annotatedList = helper lst [] in 
+            AMatch( (annotate e1 fvs) , annotatedList , type_of (snd (List.hd annotatedList)))
     end    
   (**of expr * (pattern * expr) list**)
 and annotate_op fvs bv = function
@@ -202,7 +203,7 @@ and annotate_op fvs bv = function
 let add_constraint  t  t' u = (t,t')::u
 let add_constraints cs u    = List.fold_left (fun a c -> c::a) u cs
 
-let rec collect aexprs u =
+let rec collect aexprs u = 
     match aexprs with
     | [] -> u
     | hd :: tl -> 
@@ -213,13 +214,13 @@ let rec collect aexprs u =
       | ANil (typ) -> collect tl u 
       | AUnit(typ) -> collect tl u 
       | ACons(e1,e2,typ) -> collect (e1 :: tl)
-                              ( ((type_of e1), typ ) :: 
-                              ((type_of e2),(TList(type_of e1))) ::
+                              ( 
+                              ( type_of e2 , (TList(type_of e1)) ) ::
                                u)
                               (*(  ((type_of e1), TList (type_of e1)) :: u  )*)
       | AIfThenElse (e1,e2,e3,typ) -> let constrList = 
                                           (( type_of e1, TBool ) ::
-                                            ((type_of e2), (type_of e3)) ::
+                                            ( type_of e2, type_of e3 ) ::
                                               u) in
                                       collect (e1 :: e2 :: e3 :: tl) constrList
       | ABinaryOp (op,e1,e2,typ) -> collect_operator_constraints tl u hd
@@ -227,26 +228,31 @@ let rec collect aexprs u =
       | ALetRec (id,typ1,e1,e2,typ2) -> collect tl ((typ1 , type_of e1) :: u)
       | ALet    (id,typ1,e1,e2,typ2) -> collect tl ((typ1 , type_of e1) :: u)
       | AFun    (id,e1,typ) ->          collect (e1 :: tl) u
-      | AApp    (e1,e2,typ) ->         ( match (type_of e1) with
+      | AApp    (e1,e2,typ) ->        
+                                      print_string (aexpr_to_string e1);
+                                      ( match (type_of e1) with
                                         | Arrow (argType,retType) -> 
                                           collect (e1 :: e2 :: tl) 
-                                            ( (argType ,type_of e2) :: u)
-                                        | _ -> failwith ("Something went wrong in collect")
+                                            ( (argType ,type_of e2) :: u)                                       
+                                        | x -> print_string ("\n type is " ^ (type_to_string x) ^ "\n");[]
+                                          (*failwith ("Something went wrong in collect")*)
                                       )
       | AVar   (id, typ) -> collect tl u 
-      | AMatch  (e1,lst, typ) ->     []  
-      (*
+      | AMatch  (e1,lst, typ) ->      
           let rec helper  lt u = 
               match lt with 
-              | [] -> 
-              | (pat,exp) :: tl -> helper tl 
-                                 (
-                                  (type_of e1 , type_of_pattern pat) :: 
-                                    u)
+              | [] -> u
+              | (pat,exp) :: tl ->  
+                    ( match pat with
+                      | APCons (p1,p2,typ1) -> helper tl ( 
+                                     (type_of_pattern p2, (TList(type_of_pattern p1)) ) ::
+                                     (type_of e1 , type_of_pattern p2) :: u)
+                      | APConstant (c,t) -> helper tl ( (type_of e1 , type_of_pattern pat) :: u)
+                      | APVar  (id,t) -> helper tl ( (type_of e1 , type_of_pattern pat) :: u)
+                    )
           in
-          of aexpr * ((apattern * aexpr) list) * typ
-        *)
-
+          collect tl (helper lst u)
+          (*of aexpr * ((apattern * aexpr) list) * typ*)      
     end
 
 and collect_operator_constraints aexprs u = function
