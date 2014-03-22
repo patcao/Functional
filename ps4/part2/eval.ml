@@ -68,7 +68,9 @@ let rec eval (e : expr) (env : environment) : value =
                             | _ -> type_error e1 TBool
                           )
   | Let(id,e1,e2) -> (*update id (eval e1 env) env;*) eval e2 (IdMap.add id (ref (eval e1 env)) env)
-  | LetRec (id,e1,e2) -> (let env' = (IdMap.add id (ref VUndef) env) in update id (eval e1 env') env'; eval e2 env')
+  | LetRec (id,e1,e2) -> (let env2 = IdMap.add id (ref VUndef) env in 
+                            update id (eval e1 env2) env2; 
+                            eval e2 env2)
   | App (e1,e2) ->(
                     match (eval e1 env) with
                     | VClosure (envi,id,exp) -> eval exp (IdMap.add id (ref(eval e2 env)) envi)

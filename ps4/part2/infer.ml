@@ -115,10 +115,11 @@ let rec annotate (e : expr) (fvs : (id, typ) Hashtbl.t) : aexpr =
                       let aE2 = annotate e2 fvs in 
                       (** type check list**)
                       ACons(aE1, aE2, TList(type_of aE1))            
-  | IfThenElse (e1,e2,e3) -> AIfThenElse (annotate e1 fvs, 
+  | IfThenElse (e1,e2,e3) ->  let annE3 = annotate e3 fvs in 
+                              AIfThenElse (annotate e1 fvs, 
                                             annotate e2 fvs, 
-                                              annotate e3 fvs,
-                                                 type_of (annotate e3 fvs))
+                                              annE3,
+                                                type_of annE3)
                               (**Should make sure that e2 and e3 match in types **)  
   | Let      (id,e1,e2) -> 
                           let hshCpy = Hashtbl.copy fvs in                           
@@ -126,20 +127,30 @@ let rec annotate (e : expr) (fvs : (id, typ) Hashtbl.t) : aexpr =
                            Hashtbl.add hshCpy id (type_of aE1);
                            let aE2 = annotate e2 hshCpy in                           
                             ALet(id , (type_of aE1), aE1, aE2, (type_of aE2) )  
-  | LetRec   (id,e1,e2) -> Hashtbl.add fvs id (next_type_var ());
-                           Hashtbl.add fvs id (type_of (annotate e1 fvs));
-                           ALetRec(id,Hashtbl.find fvs id, (annotate e1 fvs), 
-                            (annotate e2 fvs), type_of(annotate e2 fvs))
-  | App      (e1,e2) ->   (*begin                                               
-                          match  (annotate e1 fvs) with
+  | LetRec   (id,e1,e2) -> 
+                           Hashtbl.add fvs id (next_type_var ());
+                           let annotatedE1 = annotate e1 fvs in 
+                           Hashtbl.add fvs id (type_of annotatedE1 );
+                           let annotatedE2 = annotate e2 fvs in 
+                           ALetRec(id,Hashtbl.find fvs id, annotatedE1, annotatedE2, type_of annotatedE2)
+  | App      (e1,e2) ->   
+                          begin               
+                          let annotatedE1 = annotate e1 fvs in  
+                          print_Annotate annotatedE1;
+                          match  annotatedE1 with
                           | AVar(id, Arrow(t1,t2)) ->                             
-                            AApp  ( (annotate e1 fvs) ,(annotate e2 fvs) , t2)
+                                AApp  ( annotatedE1 ,(annotate e2 fvs) , t2)
+                          | AVar(id , typ) -> AApp( annotatedE1, annotate e2 fvs, typ)
                           | AFun(id, aE1, Arrow( appType , retType) ) ->                              
-                                AApp (aE1, (annotate e2 fvs), retType)    
-                          | AApp(e1,e2,t) -> AApp(e1,e2,t)
+                                AApp ( annotatedE1 , (annotate e2 fvs), retType)    
+                          | AApp(e3,e4,t) -> (
+                                          match t with 
+                                          | Arrow (typ1,typ2) ->  
+                                              AApp( annotatedE1,(annotate e2 fvs),typ2)
+                                          | _ -> runtime_error "This expression is not an Arrow. Cannot be applied"
+                                          )
                           | _ -> runtime_error "This expression is not a function. Cannot be applied"
-                        end*)
-                        AApp(annotate e1 fvs,annotate e2 fvs, next_type_var())
+                          end                        
   | Match     (e1,lst) ->   
            begin  
             let rec annotate_pattern pat bv = 
@@ -147,7 +158,7 @@ let rec annotate (e : expr) (fvs : (id, typ) Hashtbl.t) : aexpr =
               | PConstant(const) -> (match const with 
                                       | Bool(b) -> APConstant(const, TBool)
                                       | Int (num) -> APConstant(const, TInt)
-                                      | Nil -> APConstant(const, TUnit)
+                                      | Nil ->  APConstant(const, TList(next_type_var () ))
                                       | Unit -> APConstant(const, TUnit)
                                     )                                   
               | PVar(id) -> let nType = next_type_var () in  
@@ -229,6 +240,22 @@ let rec collect aexprs u =
       | ALet    (id,typ1,e1,e2,typ2) -> collect tl ((typ1 , type_of e1) :: u)
       | AFun    (id,e1,typ) ->          collect (e1 :: tl) u
       | AApp    (e1,e2,typ) ->        
+      begin                                
+                          print_string ( "\n" ^ aexpr_to_string e1 ^ "\n" );
+                          match e1 with 
+                          | AVar(id, Arrow(t1,t2)) ->                             
+                                collect (e1 :: e2 :: tl) 
+                                            ( (t1 ,type_of e2) :: u)  
+                          | AVar (a,b) -> print_string ( type_to_string b); []
+                          | AFun(id, aE1, Arrow( appType , retType) ) ->                              
+                                collect (e1 :: e2 :: tl) 
+                                            ( (appType ,type_of e2) :: u)  
+                          | AApp(e3,e4, Arrow(t1,t2)) -> 
+                                collect (e1 :: e2 :: tl) 
+                                            ( (t1 ,type_of e2) :: u)  
+                          | _ -> failwith "Something went wrong in collect"                                            
+      end
+(*
                                       print_string (aexpr_to_string e1);
                                       ( match (type_of e1) with
                                         | Arrow (argType,retType) -> 
@@ -236,7 +263,7 @@ let rec collect aexprs u =
                                             ( (argType ,type_of e2) :: u)                                       
                                         | x -> print_string ("\n type is " ^ (type_to_string x) ^ "\n");[]
                                           (*failwith ("Something went wrong in collect")*)
-                                      )
+                                      )*)
       | AVar   (id, typ) -> collect tl u 
       | AMatch  (e1,lst, typ) ->      
           let rec helper  lt u = 
